@@ -1,7 +1,7 @@
 /**
  * Bash Console Draggable Window
  * Makes the bash-console element draggable by its title bar.
- * Starts at 640x320, positioned on the right side of the screen.
+ * Saves/restores position from a cookie.
  */
 
 (function () {
@@ -21,11 +21,36 @@
     const winW = 800;
     const winH = 480;
     const gapRight = 40; // gap from right edge
-    const posX = window.innerWidth - winW - gapRight;
-    const posY = (window.innerHeight - winH) / 2;
 
-    consoleEl.style.left = Math.max(0, posX) + 'px';
-    consoleEl.style.top = Math.max(0, posY) + 'px';
+    // Cookie helpers
+    function getCookie(name) {
+        const match = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+        return match ? decodeURIComponent(match[2]) : null;
+    }
+
+    function setCookie(name, value, days) {
+        const date = new Date();
+        date.setTime(date.getTime() + (days || 365) * 24 * 60 * 60 * 1000);
+        document.cookie = name + '=' + encodeURIComponent(value) + '; expires=' + date.toUTCString() + '; path=/';
+    }
+
+    // Restore saved position, else default
+    const saved = getCookie('bashConsolePos');
+    if (saved) {
+        const parts = saved.split(',');
+        const savedX = parseInt(parts[0], 10);
+        const savedY = parseInt(parts[1], 10);
+        // Clamp to viewport in case screen size changed
+        const clampedX = Math.max(0, Math.min(savedX, window.innerWidth - winW));
+        const clampedY = Math.max(0, Math.min(savedY, window.innerHeight - winH));
+        consoleEl.style.left = clampedX + 'px';
+        consoleEl.style.top = clampedY + 'px';
+    } else {
+        const posX = window.innerWidth - winW - gapRight;
+        const posY = (window.innerHeight - winH) / 2;
+        consoleEl.style.left = Math.max(0, posX) + 'px';
+        consoleEl.style.top = Math.max(0, posY) + 'px';
+    }
     consoleEl.style.width = winW + 'px';
     consoleEl.style.height = winH + 'px';
 
@@ -59,8 +84,8 @@
         let newY = initialY + (e.clientY - startY);
 
         // Keep window within viewport bounds
-        newX = Math.max(0, Math.min(newX, window.innerWidth - 800));
-        newY = Math.max(0, Math.min(newY, window.innerHeight - 480));
+        newX = Math.max(0, Math.min(newX, window.innerWidth - winW));
+        newY = Math.max(0, Math.min(newY, window.innerHeight - winH));
 
         consoleEl.style.left = newX + 'px';
         consoleEl.style.top = newY + 'px';
@@ -71,7 +96,13 @@
         titleBar.style.cursor = 'grab';
         document.removeEventListener('mousemove', onDrag);
         document.removeEventListener('mouseup', onDragEnd);
+
+        // Save current position to cookie
+        const left = parseInt(consoleEl.style.left, 10);
+        const top = parseInt(consoleEl.style.top, 10);
+        if (!isNaN(left) && !isNaN(top)) {
+            setCookie('bashConsolePos', left + ',' + top);
+        }
     }
 
 })();
-
