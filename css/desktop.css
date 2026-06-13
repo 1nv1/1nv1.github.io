@@ -104,6 +104,10 @@ body {
     color: rgba(255, 255, 255, 0.9);
 }
 
+a.taskbar-item {
+    cursor: pointer;
+}
+
 .taskbar-item.active {
     background: rgba(51, 255, 51, 0.15);
     color: #33ff33;
@@ -125,12 +129,11 @@ body {
 .bash-console {
     box-shadow:
         0 24px 80px rgba(0, 0, 0, 0.6),
-        0 0 60px rgba(0, 0, 0, 0.3),
-        0 0 0 1px rgba(255, 255, 255, 0.05);
+        0 0 60px rgba(0, 0, 0, 0.3);
 }
 
 .bash-console .terminal-body {
-    max-height: calc(320px - 38px);
+    max-height: calc(480px - 38px);
     overflow-y: auto;
 }
 

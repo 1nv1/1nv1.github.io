@@ -15,8 +15,8 @@
         inset 0 1px 0 rgba(255, 255, 255, 0.05);
     position: fixed;
     overflow: hidden;
-    width: 640px;
-    height: 320px;
+    width: 800px;
+    height: 480px;
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     resize: none;

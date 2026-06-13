@@ -18,8 +18,8 @@
     consoleEl.style.zIndex = '1000';
     consoleEl.style.margin = '0';
 
-    const winW = 640;
-    const winH = 320;
+    const winW = 800;
+    const winH = 480;
     const gapRight = 40; // gap from right edge
     const posX = window.innerWidth - winW - gapRight;
     const posY = (window.innerHeight - winH) / 2;
@@ -59,8 +59,8 @@
         let newY = initialY + (e.clientY - startY);
 
         // Keep window within viewport bounds
-        newX = Math.max(0, Math.min(newX, window.innerWidth - 640));
-        newY = Math.max(0, Math.min(newY, window.innerHeight - 320));
+        newX = Math.max(0, Math.min(newX, window.innerWidth - 800));
+        newY = Math.max(0, Math.min(newY, window.innerHeight - 480));
 
         consoleEl.style.left = newX + 'px';
         consoleEl.style.top = newY + 'px';
@@ -74,3 +74,4 @@
     }
 
 })();
+
