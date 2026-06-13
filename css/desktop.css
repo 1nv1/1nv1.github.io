@@ -127,15 +127,10 @@ body {
         0 24px 80px rgba(0, 0, 0, 0.6),
         0 0 60px rgba(0, 0, 0, 0.3),
         0 0 0 1px rgba(255, 255, 255, 0.05);
-    resize: both;
-    min-width: 400px;
-    min-height: 250px;
-    max-width: 90vw;
-    max-height: 85vh;
 }
 
 .bash-console .terminal-body {
-    max-height: calc(85vh - 38px - 48px);
+    max-height: calc(320px - 38px);
     overflow-y: auto;
 }
 

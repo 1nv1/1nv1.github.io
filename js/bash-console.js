@@ -1,6 +1,7 @@
 /**
  * Bash Console Draggable Window
  * Makes the bash-console element draggable by its title bar.
+ * Starts at 640x320, positioned on the right side of the screen.
  */
 
 (function () {
@@ -12,15 +13,21 @@
     let isDragging = false;
     let startX, startY, initialX, initialY;
 
-    // Position the console absolutely and center it
+    // Position on the right side of the screen, vertically centered
     consoleEl.style.position = 'fixed';
     consoleEl.style.zIndex = '1000';
     consoleEl.style.margin = '0';
 
-    const centerX = (window.innerWidth - consoleEl.offsetWidth) / 2;
-    const centerY = (window.innerHeight - consoleEl.offsetHeight) / 2;
-    consoleEl.style.left = Math.max(0, centerX) + 'px';
-    consoleEl.style.top = Math.max(0, centerY) + 'px';
+    const winW = 640;
+    const winH = 320;
+    const gapRight = 40; // gap from right edge
+    const posX = window.innerWidth - winW - gapRight;
+    const posY = (window.innerHeight - winH) / 2;
+
+    consoleEl.style.left = Math.max(0, posX) + 'px';
+    consoleEl.style.top = Math.max(0, posY) + 'px';
+    consoleEl.style.width = winW + 'px';
+    consoleEl.style.height = winH + 'px';
 
     const titleBar = consoleEl.querySelector('.window-title');
     if (!titleBar) return;
@@ -52,8 +59,8 @@
         let newY = initialY + (e.clientY - startY);
 
         // Keep window within viewport bounds
-        newX = Math.max(0, Math.min(newX, window.innerWidth - consoleEl.offsetWidth));
-        newY = Math.max(0, Math.min(newY, window.innerHeight - consoleEl.offsetHeight));
+        newX = Math.max(0, Math.min(newX, window.innerWidth - 640));
+        newY = Math.max(0, Math.min(newY, window.innerHeight - 320));
 
         consoleEl.style.left = newX + 'px';
         consoleEl.style.top = newY + 'px';

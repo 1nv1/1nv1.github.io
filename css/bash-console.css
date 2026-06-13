@@ -13,13 +13,13 @@
         0 20px 60px rgba(0, 0, 0, 0.7),
         0 0 40px rgba(0, 255, 0, 0.03),
         inset 0 1px 0 rgba(255, 255, 255, 0.05);
-    position: relative;
+    position: fixed;
     overflow: hidden;
-    max-width: 900px;
-    width: 100%;
-    margin: 2rem auto;
+    width: 640px;
+    height: 320px;
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
+    resize: none;
 }
 
 /* Terminal window title bar */
@@ -116,46 +116,32 @@
 .bash-console .prompt {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 0;
     margin: 0;
     padding: 0;
     word-break: break-word;
 }
 
+/* User@hostname prefix - appears first */
 .bash-console .prompt::before {
-    content: '$';
-    color: #33ff33;
-    font-weight: 700;
-    margin-right: 10px;
-    text-shadow: 0 0 10px rgba(51, 255, 51, 0.5);
-    flex-shrink: 0;
-}
-
-.bash-console .prompt.root::before {
-    content: '#';
-    color: #ff3333;
-    text-shadow: 0 0 10px rgba(255, 51, 51, 0.5);
-}
-
-/* User@hostname prefix */
-.bash-console .prompt::after {
     content: attr(data-user) '@' attr(data-host) ':';
     color: #00bfff;
     font-weight: 500;
-    margin-right: 0;
     flex-shrink: 0;
     display: none;
 }
 
-.bash-console .prompt.show-user::after {
+.bash-console .prompt.show-user::before {
     display: inline;
 }
 
 /* Path/directory display in prompt */
 .bash-console .prompt .path {
     color: #ff8c00;
-    margin-left: 0;
     flex-shrink: 0;
+    margin-left: 0;
+    order: 1;
 }
 
 .bash-console .prompt .path::before {
@@ -163,15 +149,27 @@
     white-space: pre;
 }
 
+/* Prompt $ symbol - appears after the path */
 .bash-console .prompt .path::after {
-    content: '';
+    content: '$';
+    color: #33ff33;
+    font-weight: 700;
+    margin-left: 0;
+    text-shadow: 0 0 10px rgba(51, 255, 51, 0.5);
+}
+
+.bash-console .prompt.root .path::after {
+    content: '#';
+    color: #ff3333;
+    text-shadow: 0 0 10px rgba(255, 51, 51, 0.5);
 }
 
 /* Command text (what the user types) */
 .bash-console .command {
     color: #ffffff;
     font-weight: 400;
-    margin-left: 0;
+    margin-left: 4px;
+    order: 2;
 }
 
 /* Output text (what the terminal returns) */
@@ -244,12 +242,16 @@
     50% { border-color: #33ff33; }
 }
 
-/* Multi-line text block with left border (like code output) */
+/* Multi-line text block — pre-formatted code output */
 .bash-console .code-block {
+    font-family: 'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Consolas', 'Monaco', 'Andale Mono', monospace;
     border-left: 3px solid rgba(51, 255, 51, 0.3);
-    padding-left: 16px;
+    padding: 0 0 0 16px;
     margin: 6px 0;
     color: #b0b0b0;
+    line-height: 1.5;
+    font-size: 15px;
+    background: none;
 }
 
 /* Directory/file listing styles */
