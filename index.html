@@ -1,12 +1,102 @@
-<!DOCTYPE html lang="es">
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nelson Lombardo</title>
-    <link rel="stylesheet" href="css/base.css">
+    <title>Bash Console — Desktop Simulation</title>
     <link rel="stylesheet" href="css/bash-console.css">
+    <link rel="stylesheet" href="css/desktop.css">
 </head>
-<h1>
-    Work in progress!
-</h1>
+<body>
+
+    <!-- Desktop Icons -->
+    <div class="desktop-icons">
+        <div class="desktop-icon">
+            <div class="icon">📁</div>
+            <div class="label">projects</div>
+        </div>
+        <div class="desktop-icon">
+            <div class="icon">📝</div>
+            <div class="label">notes</div>
+        </div>
+        <div class="desktop-icon">
+            <div class="icon">🖥️</div>
+            <div class="label">terminal</div>
+        </div>
+    </div>
+
+    <!-- Bash Console Window -->
+    <div class="bash-console">
+        <div class="window-title">❯ bash — nelson.lombardo@portfolio: ~</div>
+        <div class="terminal-body">
+            <div class="prompt show-user" data-user="nelson" data-host="portfolio">
+                <span class="path">~</span>
+                <span class="command"> whoami</span>
+            </div>
+            <div class="output success">Nelson Lombardo</div>
+
+            <div class="prompt show-user" data-user="nelson" data-host="portfolio">
+                <span class="path">~</span>
+                <span class="command"> ls -la</span>
+            </div>
+            <div class="output">
+                <span class="ls-dir">projects/</span><br>
+                <span class="ls-file">README.md</span><br>
+                <span class="ls-exe">portfolio.app</span><br>
+                <span class="ls-link">contact → email</span>
+            </div>
+
+            <div class="prompt show-user" data-user="nelson" data-host="portfolio">
+                <span class="path">~</span>
+                <span class="command"> echo "Hello, World!"</span>
+            </div>
+            <div class="output highlight">Hello, World!</div>
+
+            <div class="prompt show-user" data-user="nelson" data-host="portfolio">
+                <span class="path">~</span>
+                <span class="command"> cat about.txt</span>
+            </div>
+            <div class="output">
+                <div class="code-block">
+                    ┌─────────────────────────────┐<br>
+                    │  Full-stack developer       │<br>
+                    │  Linux enthusiast           │<br>
+                    │  Open source contributor    │<br>
+                    └─────────────────────────────┘
+                </div>
+            </div>
+
+            <div class="prompt show-user" data-user="nelson" data-host="portfolio">
+                <span class="path">~</span>
+                <span class="command"> <span class="type-command">ping google.com</span><span class="cursor"></span></span>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Taskbar -->
+    <div class="taskbar">
+        <div class="taskbar-items">
+            <div class="taskbar-item">📂</div>
+            <div class="taskbar-item">🌐</div>
+            <div class="taskbar-item active">❯</div>
+            <div class="taskbar-item">⚙️</div>
+        </div>
+        <div class="taskbar-clock" id="clock"></div>
+    </div>
+
+    <script src="js/bash-console.js"></script>
+    <script>
+        // Live clock in the taskbar
+        function updateClock() {
+            const now = new Date();
+            const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const date = now.toLocaleDateString([], { month: 'short', day: 'numeric' });
+            document.getElementById('clock').textContent = date + '  ' + time;
+        }
+        updateClock();
+        setInterval(updateClock, 1000);
+    </script>
+</body>
 </html>
+
