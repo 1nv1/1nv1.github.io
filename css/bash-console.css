@@ -298,8 +298,9 @@
 /* Responsive */
 @media (max-width: 640px) {
     .bash-console .terminal-body {
-        padding: 16px;
+        padding: 14px;
         font-size: 13px;
+        line-height: 1.5;
     }
 
     .bash-console .command,
@@ -311,6 +312,11 @@
     .bash-console .cursor {
         height: 14px;
         width: 6px;
+    }
+
+    .bash-console .code-block {
+        font-size: 12px;
+        padding: 0 0 0 10px;
     }
 }
 
