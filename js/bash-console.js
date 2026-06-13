@@ -34,7 +34,7 @@
         document.cookie = name + '=' + encodeURIComponent(value) + '; expires=' + date.toUTCString() + '; path=/';
     }
 
-    // Restore saved position, else default
+    // Restore saved position, else default and save it
     const saved = getCookie('bashConsolePos');
     if (saved) {
         const parts = saved.split(',');
@@ -50,6 +50,8 @@
         const posY = (window.innerHeight - winH) / 2;
         consoleEl.style.left = Math.max(0, posX) + 'px';
         consoleEl.style.top = Math.max(0, posY) + 'px';
+        // Seed the cookie with the default position
+        setCookie('bashConsolePos', Math.max(0, posX) + ',' + Math.max(0, posY));
     }
     consoleEl.style.width = winW + 'px';
     consoleEl.style.height = winH + 'px';
@@ -106,3 +108,4 @@
     }
 
 })();
+
