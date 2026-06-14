@@ -246,8 +246,8 @@
 .bash-console .code-block {
     font-family: 'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Consolas', 'Monaco', 'Andale Mono', monospace;
     border-left: 3px solid rgba(51, 255, 51, 0.3);
-    padding: 0 0 0 16px;
-    margin: 6px 0;
+    padding: 0 0 0 12px;
+    margin: 3px 0;
     color: #b0b0b0;
     line-height: 1.5;
     font-size: 15px;
@@ -315,8 +315,8 @@
     }
 
     .bash-console .code-block {
-        font-size: 12px;
-        padding: 0 0 0 10px;
+        font-size: 10px;
+        padding: 0 0 0 5px;
     }
 }
 
