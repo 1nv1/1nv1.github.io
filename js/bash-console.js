@@ -2,6 +2,7 @@
  * Bash Console Draggable Window
  * Makes the bash-console element draggable by its title bar.
  * Saves/restores position from a cookie.
+ * Toggle minimize/restore on taskbar icon click.
  */
 
 (function () {
@@ -9,6 +10,9 @@
 
     const consoleEl = document.querySelector('.bash-console');
     if (!consoleEl) return;
+
+    // Keep track of minimized state
+    let minimized = false;
 
     let isDragging = false;
     let startX, startY, initialX, initialY;
@@ -107,5 +111,37 @@
         }
     }
 
-})();
+    // === Taskbar toggle minimize/restore ===
+    const taskbarItems = document.querySelectorAll('.taskbar-item');
+    let bashTaskbarItem = null;
+    for (const item of taskbarItems) {
+        if (item.textContent.trim() === '❯' || item.innerHTML.trim() === '❯') {
+            bashTaskbarItem = item;
+            break;
+        }
+    }
 
+    if (bashTaskbarItem) {
+        bashTaskbarItem.style.cursor = 'pointer';
+        bashTaskbarItem.addEventListener('click', function (e) {
+            e.stopPropagation();
+            toggleMinimize();
+        });
+    }
+
+    function toggleMinimize() {
+        minimized = !minimized;
+        if (minimized) {
+            consoleEl.style.display = 'none';
+            if (bashTaskbarItem) {
+                bashTaskbarItem.classList.remove('active');
+            }
+        } else {
+            consoleEl.style.display = '';
+            if (bashTaskbarItem) {
+                bashTaskbarItem.classList.add('active');
+            }
+        }
+    }
+
+})();
