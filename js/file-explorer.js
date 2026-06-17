@@ -736,11 +736,11 @@
     //  + AUTO-OPEN on page load if it was open before
     // ─────────────────────────────────────────────
     document.addEventListener('DOMContentLoaded', function () {
-        // Hook "projects" desktop icon
+        // Hook "File Explorer" desktop icon
         const desktopIcons = document.querySelectorAll('.desktop-icon');
         for (const icon of desktopIcons) {
             const label = icon.querySelector('.label');
-            if (label && label.textContent.trim() === 'projects') {
+            if (label && label.textContent.trim() === 'File Explorer') {
                 icon.style.cursor = 'pointer';
                 icon.addEventListener('click', function (e) {
                     e.preventDefault();
