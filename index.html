@@ -3,40 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nelson Lombardo / Personal page</title>
 
-    <!-- Open Graph / Social preview -->
-    <meta property="og:title" content="Nelson Lombardo — Portfolio">
+    <!-- ── Primary title & description ── -->
+    <title>Nelson Lombardo — Industrial Software Developer &amp; Electronic Engineer</title>
+    <meta name="description" content="Portfolio of Nelson Lombardo. Industrial software developer, electronic engineer, CFD enthusiast, and Linux advanced user. Explore projects, skills, and professional experience.">
+    <meta name="keywords" content="Nelson Lombardo, industrial software, electronic engineer, CFD, Linux, portfolio, software developer, CFD simulation, OpenFOAM">
+    <meta name="author" content="Nelson Lombardo">
+    <link rel="canonical" href="https://nelsonlombardo.com.ar/">
+
+    <!-- ── Open Graph / Social preview ── -->
+    <meta property="og:title" content="Nelson Lombardo — Industrial Software Developer · Electronic Engineer">
     <meta property="og:description" content="Industrial software developer · Electronic engineer · CFD enthusiast · Linux advanced user">
     <meta property="og:image" content="https://nelsonlombardo.com.ar/img/me/thumb.jpg">
+    <meta property="og:image:width" content="600">
+    <meta property="og:image:height" content="600">
     <meta property="og:url" content="https://nelsonlombardo.com.ar/">
     <meta property="og:type" content="website">
+    <meta property="og:locale" content="en_US">
     <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Nelson Lombardo — Portfolio">
+    <meta name="twitter:description" content="Industrial software developer · Electronic engineer · CFD enthusiast · Linux advanced user">
 
+    <!-- ── Theme color (mobile browsers) ── -->
+    <meta name="theme-color" content="#1e1e37">
+
+    <!-- ── Robots & indexing ── -->
+    <meta name="robots" content="index, follow">
+
+    <!-- ── Stylesheets ── -->
     <link rel="stylesheet" href="css/bash-console.css">
     <link rel="stylesheet" href="css/desktop.css">
     <link rel="stylesheet" href="css/file-explorer.css">
+
+    <!-- ── Structured Data (JSON-LD) ── -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "Nelson Lombardo",
+        "url": "https://nelsonlombardo.com.ar/",
+        "image": "https://nelsonlombardo.com.ar/img/me/thumb.jpg",
+        "jobTitle": "Industrial Software Developer",
+        "description": "Industrial software developer, electronic engineer, CFD enthusiast, and Linux advanced user.",
+        "sameAs": [
+            "https://www.linkedin.com/in/nelsonlombardo/"
+        ]
+    }
+    </script>
 </head>
 <body>
 
     <!-- Desktop Icons -->
     <div class="desktop-icons">
-        <div class="desktop-icon">
+        <div class="desktop-icon" role="button" tabindex="0" aria-label="Open File Explorer">
             <div class="icon">📁</div>
             <div class="label">File Explorer</div>
         </div>
-        <div class="desktop-icon">
+        <div class="desktop-icon" role="button" tabindex="0" aria-label="Open Terminal">
             <div class="icon">🖥️</div>
             <div class="label">terminal</div>
         </div>
-        <a href="https://www.linkedin.com/in/nelsonlombardo/" target="_blank" rel="noopener noreferrer" class="desktop-icon" style="text-decoration: none;">
-            <div class="icon"><img src="img/icons/linkedin.png" width="32px"></div>
+        <a href="https://www.linkedin.com/in/nelsonlombardo/" target="_blank" rel="noopener noreferrer" class="desktop-icon" style="text-decoration: none;" aria-label="Visit LinkedIn profile">
+            <div class="icon"><img src="img/icons/linkedin.png" width="32px" alt="LinkedIn icon"></div>
             <div class="label">linkedin</div>
         </a>
     </div>
 
     <!-- Bash Console Window -->
-    <div class="bash-console">
+    <div class="bash-console" role="region" aria-label="Terminal emulator showing portfolio information">
         <div class="window-title">❯ bash — nelson@portfolio: ~</div>
         <div class="terminal-body">
             <div class="prompt show-user" data-user="nelson" data-host="portfolio">
@@ -81,17 +115,17 @@
     </div>
 
     <!-- Taskbar -->
-    <div class="taskbar">
+    <div class="taskbar" role="toolbar" aria-label="Taskbar">
         <div class="taskbar-items">
-            <div class="taskbar-item">📂</div>
-            <div class="taskbar-item">🌐</div>
-            <div class="taskbar-item active">❯</div>
-            <div class="taskbar-item">⚙️</div>
-            <a href="https://www.linkedin.com/in/nelsonlombardo/" target="_blank" rel="noopener noreferrer" class="taskbar-item" style="text-decoration: none;">
-                <img src="img/icons/linkedin.png" width="32px">
+            <div class="taskbar-item" role="button" tabindex="0" aria-label="File Explorer">📂</div>
+            <div class="taskbar-item" role="button" tabindex="0" aria-label="Web browser">🌐</div>
+            <div class="taskbar-item active" role="button" tabindex="0" aria-label="Terminal">❯</div>
+            <div class="taskbar-item" role="button" tabindex="0" aria-label="Settings">⚙️</div>
+            <a href="https://www.linkedin.com/in/nelsonlombardo/" target="_blank" rel="noopener noreferrer" class="taskbar-item" style="text-decoration: none;" aria-label="LinkedIn">
+                <img src="img/icons/linkedin.png" width="32px" alt="LinkedIn">
             </a>
         </div>
-        <div class="taskbar-clock" id="clock"></div>
+        <div class="taskbar-clock" id="clock" aria-live="polite" aria-label="Current date and time"></div>
     </div>
 
     <script src="js/bash-console.js"></script>
@@ -109,4 +143,3 @@
     </script>
 </body>
 </html>
-
