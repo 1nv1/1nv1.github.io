@@ -14,12 +14,26 @@
     // Keep track of minimized state
     let minimized = false;
 
+    // Z-index management — shared global counter with file explorer
+    // Both windows use window.__topZ so the last-clicked
+    // window always has the highest z-index.
+    if (typeof window.__topZ === 'undefined') {
+        window.__topZ = 2000;
+    }
+
+    function bringBashToFront() {
+        window.__topZ++;
+        consoleEl.style.zIndex = window.__topZ;
+    }
+
+    consoleEl.addEventListener('mousedown', bringBashToFront);
+
     let isDragging = false;
     let startX, startY, initialX, initialY;
 
     // Position on the right side of the screen, vertically centered
     consoleEl.style.position = 'fixed';
-    consoleEl.style.zIndex = '1000';
+    consoleEl.style.zIndex = window.__topZ;
     consoleEl.style.margin = '0';
 
     const winW = 800;
