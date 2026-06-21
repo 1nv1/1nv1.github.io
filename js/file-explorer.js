@@ -54,7 +54,8 @@
                                     },
                                     {
                                         name: 'README.md',
-                                        type: 'file',
+                                        type: 'markdown',
+                                        realPath: 'README.md',
                                         size: 1024,
                                         modified: '2025-02-28 11:00'
                                     }
@@ -105,6 +106,31 @@
                                         realPath: 'img/icons/linkedin.png',
                                         size: 8192,
                                         modified: '2025-01-10 10:00'
+                                    }
+                                ]
+                            },
+                            {
+                                name: 'Tips',
+                                type: 'dir',
+                                children: [
+                                    {
+                                        name: 'linux',
+                                        type: 'dir',
+                                        children: [
+                                            {
+                                                name: 'xfce',
+                                                type: 'dir',
+                                                children: [
+                                                    {
+                                                        name: 'bt_sound_issues.md',
+                                                        type: 'markdown',
+                                                        realPath: 'tips/linux/xfce/bt_sound_issues.md',
+                                                        size: 256,
+                                                        modified: '2025-04-01 18:00'
+                                                    }
+                                                ]
+                                            }
+                                        ]
                                     }
                                 ]
                             }
@@ -209,6 +235,7 @@
     function mimeType(node) {
         if (node.type === 'dir') return 'Directory';
         if (node.type === 'image') return 'Image';
+        if (node.type === 'markdown') return 'Markdown';
         const ext = node.name.split('.').pop().toLowerCase();
         const types = {
             'txt': 'Plain Text', 'md': 'Markdown', 'html': 'HTML',
@@ -222,6 +249,7 @@
     function fileIcon(node) {
         if (node.type === 'dir') return '📁';
         if (node.type === 'image') return '🖼️';
+        if (node.type === 'markdown') return '📝';
         const ext = node.name.split('.').pop().toLowerCase();
         const icons = { 'txt': '📄', 'md': '📝', 'html': '🌐', 'css': '🎨', 'js': '⚡', 'conf': '⚙️' };
         return icons[ext] || '📄';
@@ -324,6 +352,13 @@
                     navigateTo(currentPath === '/' ? '/' + child.name : currentPath + '/' + child.name);
                 } else if (child.type === 'image') {
                     openImagePreview(child);
+                } else if (child.type === 'markdown') {
+                    // Open in Markdown Viewer
+                    if (window.MarkdownViewer) {
+                        window.MarkdownViewer.open(child.name, child.realPath);
+                    } else {
+                        console.warn('MarkdownViewer not available');
+                    }
                 }
             });
 
