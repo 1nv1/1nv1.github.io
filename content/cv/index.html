@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEVILXOR CORP - PERSONAL DOSSIER v6.1</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+        :root {
+            --crt-green: #33ff33;
+            --crt-green-dim: #004400;
+            --crt-bg: #0a0f0d;
+            --terminal-font: 'Share Tech Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            scrollbar-width: thin;
+            scrollbar-color: var(--crt-green) var(--crt-bg);
+        }
+
+        body {
+            background-color: var(--crt-bg);
+            color: var(--crt-green);
+            font-family: var(--terminal-font);
+            letter-spacing: 1px;
+            line-height: 1.6;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden; 
+            position: relative;
+        }
+
+        /* EFECTO CRT CONSTANTE EN PANTALLA COMPLETA */
+        body::before {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.05), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.05));
+            z-index: 9999;
+            opacity: 0.4;
+            pointer-events: none;
+            background-size: 100% 4px, 6px 100%;
+        }
+
+        @keyframes flicker {
+            0% { opacity: 0.99; }
+            50% { opacity: 1; }
+            100% { opacity: 0.98; }
+        }
+
+        .terminal-container {
+            width: 100%;
+            height: 100%;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            animation: flicker 0.2s infinite;
+            background-color: rgba(10, 15, 13, 0.95);
+        }
+
+        /* --- HEADER --- */
+        header {
+            border-bottom: 2px dashed var(--crt-green);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            flex-shrink: 0;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid var(--crt-green);
+            padding: 6px;
+            margin-bottom: 15px;
+            background-color: var(--crt-green-dim);
+            color: var(--crt-bg);
+        }
+
+        .corp-logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            text-shadow: 0 0 5px rgba(10, 15, 13, 0.5);
+        }
+
+        .header-pic-container {
+            width: 80px;
+            height: 80px;
+            border: 2px solid var(--crt-bg);
+            background-color: #000;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* FILTROS PARA IMAGEN DE PERFIL (CRT GREEN) */
+        .header-pic-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: grayscale(100%) sepia(100%) hue-rotate(90deg) contrast(170%) brightness(100%) blur(0.3px);
+            mix-blend-mode: screen;
+            opacity: 0.95;
+        }
+
+        .header-pic-container::after {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: repeating-linear-gradient(0deg, rgba(0,0,0,0.1), rgba(0,0,0,0.1) 1px, transparent 1px, transparent 2px);
+            pointer-events: none;
+        }
+
+        .dossier-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+
+        .meta-item span {
+            color: #fff;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+        }
+
+        /* --- VENTANA DE SCROLL CON MANDATORY SNAP --- */
+        .scroll-window {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding-right: 20px;
+            margin-bottom: 15px;
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth; 
+        }
+
+        /* --- SECCIONES CONFIGURADAS PARA ENGANCHE ESTRICTO --- */
+        section {
+            min-height: calc(100vh - 250px); 
+            scroll-snap-align: start;
+            scroll-margin-top: 5px; 
+            padding-bottom: 40px; 
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* CONTENEDOR FLUIDO EN DOS COLUMNAS ESTRICTAS */
+        .section-content-wrapper {
+            display: grid;
+            grid-template-columns: 1.4fr 0.6fr; 
+            gap: 30px;
+            align-items: start;
+            flex-grow: 1;
+        }
+
+        /* BLOQUE DE TEXTO (COLUMNA 1) */
+        .text-block {
+            overflow-y: auto;
+            max-height: calc(100vh - 320px); 
+            padding-right: 10px;
+        }
+
+        /* CONTENEDOR DE IMAGEN CONFIGURADO EN STACK (COLUMNA 2) */
+        .nostromo-image-container {
+            border: 1px solid var(--crt-green-dim);
+            background-color: #000;
+            padding: 10px;
+            position: relative;
+            width: 100%;
+            height: calc(100vh - 350px); 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .image-stack {
+            position: relative;
+            width: 85%;
+            height: 80%;
+        }
+
+        .image-stack img {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover; 
+            border: 1px solid var(--crt-green);
+            background-color: var(--crt-bg);
+            transition: transform 0.4s ease, z-index 0.4s step-start, opacity 0.4s ease, filter 0.4s ease;
+            
+            /* Filtro base por defecto para las imágenes secundarias */
+            filter: grayscale(100%) sepia(100%) hue-rotate(85deg) contrast(160%) brightness(50%) saturate(120%);
+            mix-blend-mode: screen; /* Las del fondo conservan transparencia para dar profundidad */
+            opacity: 0.35;
+            z-index: 1;
+            transform: translate(-12px, -12px);
+        }
+
+        /* --- CONTROL DE ESTADOS DE LAS CAPAS --- */
+        
+        /* Imagen en Tercer Plano (Fondo) */
+        .image-stack img.back-layer {
+            transform: translate(-12px, -12px);
+            z-index: 1;
+            opacity: 0.25;
+            mix-blend-mode: screen;
+            filter: grayscale(100%) sepia(100%) hue-rotate(85deg) contrast(160%) brightness(40%);
+        }
+
+        /* Imagen en Segundo Plano (Medio) */
+        .image-stack img.mid-layer {
+            transform: translate(-4px, -4px);
+            z-index: 2;
+            opacity: 0.55;
+            mix-blend-mode: screen;
+            filter: grayscale(100%) sepia(100%) hue-rotate(85deg) contrast(160%) brightness(60%);
+        }
+
+        /* Imagen Activa (Primer Plano): CON FILTRO VERDE, PERO SÓLIDA (SIN TRANSPARENCIA) */
+        .image-stack img.active-layer {
+            transform: translate(4px, 4px);
+            z-index: 3;
+            opacity: 1 !important; /* Totalmente opaca */
+            mix-blend-mode: normal !important; /* Elimina la fusión transparente con el fondo */
+            
+            /* Conserva el tinte verde fosforescente con alta definición y contraste */
+            filter: grayscale(100%) sepia(100%) hue-rotate(85deg) contrast(170%) brightness(95%) saturate(200%) !important;
+            
+            box-shadow: 0 0 20px rgba(51, 255, 51, 0.3);
+            border-color: var(--crt-green);
+        }
+
+        /* ANIMACIÓN AL PASAR EL CURSOR (HOVER MULTIPLICADO) */
+        .nostromo-image-container:hover .image-stack img.back-layer {
+            transform: translate(-28px, -28px);
+        }
+        .nostromo-image-container:hover .image-stack img.mid-layer {
+            transform: translate(0px, 0px);
+        }
+        .nostromo-image-container:hover .image-stack img.active-layer {
+            transform: translate(28px, 28px);
+            border-color: #fff;
+        }
+
+        /* Líneas de escaneo sutiles sobre el contenedor general */
+        .nostromo-image-container::after {
+            content: "";
+            position: absolute;
+            top: 5px; left: 5px; right: 5px; bottom: 5px;
+            background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.2.5) 0px, rgba(0, 0, 0, 0.2.5) 2px, transparent 2px, transparent 4px);
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .image-caption {
+            position: absolute;
+            bottom: 5px;
+            left: 0;
+            width: 100%;
+            font-size: 0.75rem;
+            color: var(--crt-green-dim);
+            text-transform: uppercase;
+            text-align: center;
+            z-index: 6;
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            text-transform: uppercase;
+            border-left: 5px solid var(--crt-green);
+            padding-left: 10px;
+            margin-bottom: 20px;
+            background: linear-gradient(90deg, var(--crt-green-dim), transparent);
+            flex-shrink: 0;
+            min-height: 2.2rem; 
+        }
+
+        /* ELEMENTOS DEL CV */
+        .cv-item {
+            border: 1px solid var(--crt-green-dim);
+            padding: 15px;
+            margin-bottom: 20px;
+            background-color: rgba(0, 68, 0, 0.03);
+            transition: all 0.2s ease;
+        }
+
+        .cv-item:hover {
+            border-color: var(--crt-green);
+            background-color: rgba(0, 68, 0, 0.12);
+            box-shadow: 0 0 12px rgba(51, 255, 51, 0.15);
+        }
+
+        .cv-header {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .cv-role {
+            color: #fff;
+        }
+
+        .cv-date {
+            color: var(--crt-green);
+        }
+
+        .cv-body ul {
+            list-style-type: ">> ";
+            padding-left: 20px;
+            margin-top: 8px;
+        }
+
+        .cv-body li {
+            margin-bottom: 6px;
+        }
+
+        /* SKILLS / PROGRESS */
+        .skill-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .progress-bar {
+            width: 50%;
+            border: 1px solid var(--crt-green);
+            height: 14px;
+            padding: 2px;
+            background: rgba(0,0,0,0.5);
+        }
+
+        .progress-fill {
+            background-color: var(--crt-green);
+            height: 100%;
+            box-shadow: 0 0 8px var(--crt-green);
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            padding-top: 15px;
+            border-top: 2px dashed var(--crt-green);
+            font-size: 0.8rem;
+            text-align: center;
+            text-transform: uppercase;
+            color: #ff3333;
+            text-shadow: 0 0 5px rgba(255, 51, 51, 0.5);
+            flex-shrink: 0;
+        }
+
+        /* PERSONALIZACIÓN DEL SCROLLBAR */
+        .scroll-window::-webkit-scrollbar {
+            width: 10px;
+        }
+        .scroll-window::-webkit-scrollbar-track {
+            background: var(--crt-bg);
+            border-left: 1px solid var(--crt-green-dim);
+        }
+        .scroll-window::-webkit-scrollbar-thumb {
+            background: var(--crt-green);
+            border: 1px solid var(--crt-bg);
+        }
+        .scroll-window::-webkit-scrollbar-thumb:hover {
+            background: #66ff66;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .section-content-wrapper {
+                grid-template-columns: 1fr;
+            }
+            .nostromo-image-container {
+                height: 250px;
+            }
+            .text-block {
+                max-height: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="terminal-container">
+        
+        <header>
+            <div class="header-top">
+                <div class="corp-logo">DEVILXOR CORP</div>
+                <div class="header-pic-container">
+                    <img src="img/perfil.png" alt="Nelson Lombardo">
+                </div>
+            </div>
+            <div class="dossier-meta">
+                <div class="meta-item">ID DOSSIER: <span>RE-730-NL</span></div>
+                <div class="meta-item">USER: <span>NELSON LOMBARDO</span></div>
+                <div class="meta-item">CONSOLE: <span>MU-TH-UR 6000</span></div>
+                <div class="meta-item">STATUS: <span>ACTIVE (ABOARD)</span></div>
+            </div>
+        </header>
+
+        <div class="scroll-window">
+            
+            <section id="objective">
+                <h2>01 // RESUMEN OPERATIVO</h2>
+                <div class="section-content-wrapper">
+                    <div class="text-block">
+                        <p>Especialista técnico enfocado en entornos críticos y procesamiento de datos complejos. Experiencia en optimización de rendimiento de infraestructura de software y resolución de contingencias operativas bajo protocolos estrictos corporativos.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2007 Section -->
+            <section id="experience-2007">
+                <h2>REGISTRO DE ACTIVIDADES (2007)</h2>
+                <div class="section-content-wrapper">
+                    <div class="text-block">
+                        <div class="cv-item">
+                            <div class="cv-header">
+                                <span class="cv-role">TÉCNICO ELECTRÓNICO</span>
+                                <span class="cv-date">2007</span>
+                            </div>
+                            <div class="cv-body">
+                                <p><strong>Sector:</strong> Laboratorio de electrónica para las líneas de fractura, cementación y coiled tubing[cite: 1]</p>
+                                <ul>
+                                    <li>Termino el ordenamiento del sector y traspaso de mi rol.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="cv-item">
+                            <div class="cv-header">
+                                <span class="cv-role">ESTUDIANTE ING. EN ELECTRÓNICA</span>
+                                <span class="cv-date">2007</span>
+                            </div>
+                            <div class="cv-body">
+                                <p><strong>Sector:</strong> Universidad Tecnológica Nacional - Facultad Regional del Neuquén[cite: 5]</p>
+                                <ul>
+                                    <li>Luego de ahorrar dinero durante mis años de trabajo y una mejora en la calidad de vida de mi familia de origen, comienzo a estudiar Ingeniería en Electrónica.</li>
+                                    <li>Un hobby era hacer modificaciones a los gabinetes de las PCs (PC mods).</li>
+                                    <li>Me tomo más en serio la programación y vuelvo al mundo GNU/Linux con fuerza. Decido que sólo utilizaré distros Linux's durante la carrera.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="nostromo-image-container">
+                        <div class="image-stack">
+                            <img src="img/2007/pc_mod.jpg" alt="PC mod 2007">
+                        </div>
+                        <div class="image-caption">REF: PC_MOD_LOG_2007</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2006 Section -->
+            <section id="experience-2006">
+                <h2>REGISTRO DE ACTIVIDADES (2006)</h2>
+                <div class="section-content-wrapper">
+                    <div class="text-block">
+                        <div class="cv-item">
+                            <div class="cv-header">
+                                <span class="cv-role">TÉCNICO ELECTRÓNICO</span>
+                                <span class="cv-date">2006</span>
+                            </div>
+                            <div class="cv-body">
+                                <p><strong>Sector:</strong> Laboratorio de electrónica para las líneas de fractura, cementación y coiled tubing[cite: 1]</p>
+                                <ul>
+                                    <li>Desarrollo de tareas avanzadas relacionadas con el mantenimiento correctivo.[cite: 1]</li>
+                                    <li>Establezco diagramas para desarrollar el mantenimiento predictivo de los equipos.</li>
+                                    <li>Opero equipos en campo, logrando comprender mejor el funcionamiento completo y estableciendo mejores protocolos de diagnóstico.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="nostromo-image-container">
+                        <div class="image-stack">
+                            <img src="img/2006/blender_coworker.jpg" alt="Blender 2005">
+                        </div>
+                        <div class="image-caption">REF: FIELD_OPERATION_LOG_2006</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2005 Section -->
+            <section id="experience-2005">
+                <h2>REGISTRO DE ACTIVIDADES (2005)</h2>
+                <div class="section-content-wrapper">
+                    <div class="text-block">
+                        <div class="cv-item">
+                            <div class="cv-header">
+                                <span class="cv-role">TÉCNICO ELECTRÓNICO</span>
+                                <span class="cv-date">2005</span>
+                            </div>
+                            <div class="cv-body">
+                                <p><strong>Sector:</strong> Laboratorio de electrónica para las líneas de fractura, cementación y coiled tubing[cite: 1]</p>
+                                <ul>
+                                    <li>Desarrollo de tareas avanzadas relacionadas con el mantenimiento correctivo.[cite: 1]</li>
+                                    <li>Realizo más diagnóstico en campaña, visitando activamente los yacimientos donde se proporcinan los servicios especiales.</li>
+                                    <li>Comienzo a interactuar con mucha más frecuencia con los operarios, construyendo relaciones laborales más fuertes.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="nostromo-image-container">
+                        <div class="image-stack">
+                            <img src="img/2005/snow.jpg" alt="Snowing 2005">
+                            <img src="img/2005/working.jpg" alt="Working 2005">
+                        </div>
+                        <div class="image-caption">REF: FIELD_OPERATION_LOG_2005</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2004 Section -->
+            <section id="experience-2004">
+                <h2>REGISTRO DE ACTIVIDADES (2004)</h2>
+                <div class="section-content-wrapper">
+                    <div class="text-block">
+                        <div class="cv-item">
+                            <div class="cv-header">
+                                <span class="cv-role">TÉCNICO ELECTRÓNICO</span>
+                                <span class="cv-date">2004</span>
+                            </div>
+                            <div class="cv-body">
+                                <p><strong>Sector:</strong> Laboratorio de electrónica para las líneas de fractura, cementación y coiled tubing[cite: 1]</p>
+                                <ul>
+                                    <li>Mi primer trabajo formal.[cite: 1]</li>
+                                    <li>Este año desarrollo tareas mayormente relacionadas con el mantenimiento correctivo.[cite: 1]</li>
+                                    <li>Aprendo sobre algunos de los procesos administrativos básicos.[cite: 1]</li>
+                                    <li>Debo desenvolverme totalmente solo, el sector había quedado desierto y las únicas personas con experiencia no pueden estar en Neuquén. El soporte es telefónico y esporádico.[cite: 1]</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="nostromo-image-container">
+                        <div class="image-stack">
+                            <img src="img/2004/hBase.jpg" alt="Halliburton base 2004">
+                        </div>
+                        <div class="image-caption">REF: H_BASE_NEUQUEN_2004</div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="skills">
+                <h2>03 // APTITUDES Y DIAGNÓSTICO DE SISTEMA</h2>
+                <div class="section-content-wrapper">
+                    <div class="text-block">
+                        <div class="skill-row">
+                            <span>DESARROLLO ALGORÍTMICO / LENGUAJES COMPILADOS</span>
+                            <div class="progress-bar"><div class="progress-fill" style="width: 92%;"></div></div>
+                        </div>
+                        <div class="skill-row">
+                            <span>PROCESAMIENTO DE DATOS / PARSEO GEOMÉTRICO</span>
+                            <div class="progress-bar"><div class="progress-fill" style="width: 88%;"></div></div>
+                        </div>
+                        <div class="skill-row">
+                            <span>RESOLUCIÓN DE CONFLICTOS EN SISTEMAS</span>
+                            <div class="progress-bar"><div class="progress-fill" style="width: 75%;"></div></div>
+                        </div>
+                    </div>
+
+                    <div class="nostromo-image-container">
+                        <div class="image-stack">
+                            <img src="terminal-hardware.jpg" alt="[HARDWARE_TERMINAL_INTERFACE]">
+                        </div>
+                        <div class="image-caption">REF: CONSOLA_DATOS_MU-TH-UR</div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="education">
+                <h2>04 // INSTRUCCIÓN ACADÉMICA REGISTRADA</h2>
+                <div class="section-content-wrapper">
+                    <div class="text-block">
+                        <div class="cv-item">
+                            <div class="cv-header">
+                                <span class="cv-role">INGENIERÍA TECNOLÓGICA</span>
+                                <span class="cv-date">ETAPA FINAL</span>
+                            </div>
+                            <div class="cv-body">
+                                <p>Institución de Educación Superior Regional.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="nostromo-image-container">
+                        <div class="image-stack">
+                            <img src="insignia-tecnica.jpg" alt="[INSIGNIA_CERTIFICACION_TECNICA]">
+                        </div>
+                        <div class="image-caption">REF: CERT_ID: RE-730-NL</div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+        <footer>
+            ADVERTENCIA SEGURIDAD: SÓLO PERSONAL AUTORIZADO. LAS VIOLACIONES DE PRIVACIDAD DE DATOS DE LA CORPORACIÓN CONLLEVAN LA RESCISIÓN INMEDIATA DEL CONTRATO OPERATIVO.
+        </footer>
+
+    </div>
+
+    <!-- Computer sound element -->
+    <audio id="nostromo-beep" src="sounds/computer.mp3" preload="auto"></audio>
+
+    <script>
+        const scrollWindow = document.querySelector('.scroll-window');
+        const sections = document.querySelectorAll('section');
+        const beepSound = document.getElementById('nostromo-beep');
+        
+        let currentSectionIndex = 0;
+        let isScrolling;
+
+        beepSound.volume = 0.2;
+
+        // --- EFECTO TELEPO / TYPEWRITER ---
+        function typeTitle(section) {
+            const h2 = section.querySelector('h2');
+            if (!h2) return;
+
+            if (!h2.getAttribute('data-original-text')) {
+                h2.setAttribute('data-original-text', h2.textContent);
+            }
+
+            const fullText = h2.getAttribute('data-original-text');
+            h2.textContent = ''; 
+            let charIndex = 0;
+
+            if (h2.intervalId) clearInterval(h2.intervalId);
+
+            h2.intervalId = setInterval(() => {
+                if (charIndex < fullText.length) {
+                    h2.textContent += fullText.charAt(charIndex);
+                    charIndex++;
+                } else {
+                    clearInterval(h2.intervalId);
+                }
+            }, 60); 
+        }
+
+        // --- ROTACIÓN DINÁMICA DE IMÁGENES EN STACK ---
+        function updateStackLayers() {
+            document.querySelectorAll('.image-stack').forEach(stack => {
+                const images = Array.from(stack.querySelectorAll('img'));
+                if (images.length === 0) return;
+
+                if (stack.activeIndex === undefined) {
+                    stack.activeIndex = images.length - 1; 
+                }
+
+                images.forEach((img, idx) => {
+                    img.classList.remove('active-layer', 'mid-layer', 'back-layer');
+
+                    if (idx === stack.activeIndex) {
+                        img.classList.add('active-layer');
+                    } else if (idx === (stack.activeIndex - 1 + images.length) % images.length) {
+                        img.classList.add('mid-layer');
+                    } else {
+                        img.classList.add('back-layer');
+                    }
+                });
+            });
+        }
+
+        function startStackRotation() {
+            setInterval(() => {
+                document.querySelectorAll('.image-stack').forEach(stack => {
+                    const images = stack.querySelectorAll('img');
+                    if (images.length <= 1) return; 
+
+                    stack.activeIndex = (stack.activeIndex - 1 + images.length) % images.length;
+                });
+                updateStackLayers();
+            }, 5000); 
+        }
+
+        // Inicializar limpieza de títulos
+        sections.forEach((section, index) => {
+            const h2 = section.querySelector('h2');
+            if (h2) {
+                h2.setAttribute('data-original-text', h2.textContent);
+                if (index !== 0) h2.textContent = ''; 
+            }
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            if(sections[0]) typeTitle(sections[0]);
+            updateStackLayers();
+            startStackRotation();
+        });
+
+        // --- DETECCIÓN DEL SCROLL CON SNAP ---
+        scrollWindow.addEventListener('scroll', function() {
+            window.clearTimeout(isScrolling);
+
+            isScrolling = setTimeout(function() {
+                const triggerPoint = scrollWindow.getBoundingClientRect().top + (scrollWindow.clientHeight / 2);
+                
+                sections.forEach((section, index) => {
+                    const rect = section.getBoundingClientRect();
+                    
+                    if (triggerPoint >= rect.top && triggerPoint <= rect.bottom) {
+                        
+                        if (index !== currentSectionIndex) {
+                            currentSectionIndex = index;
+                            
+                            const playInstance = beepSound.cloneNode();
+                            playInstance.volume = beepSound.volume;
+                            playInstance.play().catch(e => console.log("Falta interacción del usuario"));
+                            
+                            typeTitle(section);
+                        }
+                    } else {
+                        const h2 = section.querySelector('h2');
+                        if (h2 && index !== currentSectionIndex) {
+                            h2.textContent = '';
+                        }
+                    }
+                });
+
+            }, 60); 
+        });
+    </script>
+
+</body>   
+</html>
