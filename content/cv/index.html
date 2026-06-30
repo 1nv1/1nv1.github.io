@@ -40,8 +40,25 @@
             display: block;
             position: fixed;
             top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.05), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.05));
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.15) 0px,
+                rgba(0, 0, 0, 0.15) 1px,
+                transparent 1px,
+                transparent 3px
+            );
             z-index: 9999;
+            pointer-events: none;
+        }
+
+        /* Efecto de monitor antiguo (flicker) */
+        body::after {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.05), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.05));
+            z-index: 9998;
             opacity: 0.4;
             pointer-events: none;
             background-size: 100% 4px, 6px 100%;
@@ -112,7 +129,7 @@
             content: "";
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: repeating-linear-gradient(0deg, rgba(0,0,0,0.1), rgba(0,0,0,0.1) 1px, transparent 1px, transparent 2px);
+            background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15), rgba(0,0,0,0.15) 1px, transparent 1px, transparent 3px);
             pointer-events: none;
         }
 
@@ -253,7 +270,7 @@
             content: "";
             position: absolute;
             top: 5px; left: 5px; right: 5px; bottom: 5px;
-            background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.2.5) 0px, rgba(0, 0, 0, 0.2.5) 2px, transparent 2px, transparent 4px);
+            background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.15) 0px, rgba(0, 0, 0, 0.15) 1px, transparent 1px, transparent 3px);
             pointer-events: none;
             z-index: 5;
         }
@@ -408,10 +425,139 @@
         <div class="scroll-window">
             
             <section id="objective">
-                <h2>01 // RESUMEN OPERATIVO</h2>
+                <h2>RESUMEN OPERATIVO</h2>
                 <div class="section-content-wrapper">
                     <div class="text-block">
-                        <p>Especialista técnico enfocado en entornos críticos y procesamiento de datos complejos. Experiencia en optimización de rendimiento de infraestructura de software y resolución de contingencias operativas bajo protocolos estrictos corporativos.</p>
+                        <p><strong>[TENARIS]</strong></p>
+                        <ul>
+                            <li>Especialista en <strong>innovación</strong> de procesos industriales</li>
+                            <li>Enfocado en entornos <strong>críticos</strong> y procesamiento de datos <strong>complejos</strong>.</li>
+                        </ul>
+
+                        <p><strong>[ZIEL, BUJI]</strong></p>
+                        <ul>
+                            <li>Desarrollador de sistemas de <strong>telemetría</strong> para la industria del Oil&Gas</li>
+                            <p>Experiencia en <strong>optimización</strong> de rendimiento de infraestructura de software y <strong>resolución</strong> de contingencias operativas bajo protocolos estrictos corporativos.</p>
+                        </ul>
+
+                        <p><strong>[UTN - FRN]</strong></p>
+                        <ul>
+                            <li>Jefe de trabajos prácticos para la materia de análisis de señales y sistemas.</li>
+                        </ul>
+                        
+                        <p><strong>[TEIA]</strong></p>
+                        <ul>
+                            <li>Desarrollador de <strong>sensores</strong> y <strong>sistemas</strong> de telemetría para la industria del Oil&Gas</li>
+                            <li>Administración y minería de datos</li>
+                        </ul>
+                        <p><strong>[HALLIBURTON]</strong></p>
+                        <ul>
+                            <li>Técnico electrónico para servicios especiales: zone isolation, coiled tubing y production enhancement.</li>
+                        </ul>
+                    </div>
+                    <div class="nostromo-image-container">
+                        <div class="image-stack">
+                            <img src="img/perfil.png" alt="[PROFILE_INTERFACE]">
+                        </div>
+                        <div class="image-caption">REF: CONSOLA_DATOS_MU-TH-UR</div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="skills">
+                <h2>APTITUDES Y DIAGNÓSTICO DE SISTEMA</h2>
+                <div class="section-content-wrapper">
+                    <div class="text-block">
+                        <div class="skill-row">
+                            <span>DESARROLLO ALGORÍTMICO / LENGUAJES COMPILADOS</span>
+                            <div class="progress-bar"><div class="progress-fill" style="width: 92%;"></div></div>
+                        </div>
+                        <div class="skill-row">
+                            <span>PROCESAMIENTO DE DATOS / PARSEO GEOMÉTRICO</span>
+                            <div class="progress-bar"><div class="progress-fill" style="width: 88%;"></div></div>
+                        </div>
+                        <div class="skill-row">
+                            <span>RESOLUCIÓN DE CONFLICTOS EN SISTEMAS</span>
+                            <div class="progress-bar"><div class="progress-fill" style="width: 75%;"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="education">
+                <h2>INSTRUCCIÓN ACADÉMICA REGISTRADA</h2>
+                <div class="section-content-wrapper">
+                    <div class="text-block">
+                        <div class="cv-item">
+                            <div class="cv-header">
+                                <span class="cv-role">MAESTRANDO EN MÉTODOS NUMÉRICOS Y MECÁNICA COMPUTACIONAL, MENCIÓN FLUIDOS</span>
+                                <span class="cv-date">2024-?</span>
+                            </div>
+                            <div class="cv-body">
+                                <p>Universidad Tecnológica Nacional - Facultad Regional Delta[cite: 4]</p>
+                            </div>
+                        </div>
+                        <div class="cv-item">
+                            <div class="cv-header">
+                                <span class="cv-role">INGENIERO EN ELECTRÓNICA</span>
+                                <span class="cv-date">2007 - 2015</span>
+                            </div>
+                            <div class="cv-body">
+                                <p>Universidad Tecnológica Nacional - Facultad Regional del Neuquén[cite: 5]</p>
+                            </div>
+                        </div>
+                        <div class="cv-item">
+                            <div class="cv-header">
+                                <span class="cv-role">TÉCNICO UNIVERSITARIO EN ELECTRÓNICA</span>
+                                <span class="cv-date">2007 - 2013</span>
+                            </div>
+                            <div class="cv-body">
+                                <p>Universidad Tecnológica Nacional - Facultad Regional del Neuquén[cite: 5]</p>
+                            </div>
+                        </div>
+                        <div class="cv-item">
+                            <div class="cv-header">
+                                <span class="cv-role">TÉCNICO EN ELECTRÓNICA</span>
+                                <span class="cv-date">1996 - 2001</span>
+                            </div>
+                            <div class="cv-body">
+                                <p>EPET 14 - Neuquén[cite: 6]</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="nostromo-image-container">
+                        <div class="image-stack">
+                            <img src="img/flag.jpg" alt="[INSIGNIA_CERTIFICACION_TECNICA]">
+                        </div>
+                        <div class="image-caption">REF: CERT_ID: RE-730-NL</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 20012 Section -->
+            <section id="experience-2012">
+                <h2>REGISTRO DE ACTIVIDADES (2012)</h2>
+                <div class="section-content-wrapper">
+                    <div class="text-block">
+                        <div class="cv-item">
+                            <div class="cv-header">
+                                <span class="cv-role">ESTUDIANTE ING. EN ELECTRÓNICA</span>
+                                <span class="cv-date">2012</span>
+                            </div>
+                            <div class="cv-body">
+                                <p><strong>Sector:</strong> Universidad Tecnológica Nacional - Facultad Regional del Neuquén[cite: 5]</p>
+                                <ul>
+                                    <li>Sigo estudiando y desarrollando diferentes proyectos que se van presentando.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="nostromo-image-container">
+                        <div class="image-stack">
+                            <img src="img/2012/pid.jpg" alt="PID 2012">
+                        </div>
+                        <div class="image-caption">REF: PROJECTS_MOD_LOG_2012</div>
                     </div>
                 </div>
             </section>
@@ -549,60 +695,8 @@
                     </div>
                 </div>
             </section>
-
-            <section id="skills">
-                <h2>03 // APTITUDES Y DIAGNÓSTICO DE SISTEMA</h2>
-                <div class="section-content-wrapper">
-                    <div class="text-block">
-                        <div class="skill-row">
-                            <span>DESARROLLO ALGORÍTMICO / LENGUAJES COMPILADOS</span>
-                            <div class="progress-bar"><div class="progress-fill" style="width: 92%;"></div></div>
-                        </div>
-                        <div class="skill-row">
-                            <span>PROCESAMIENTO DE DATOS / PARSEO GEOMÉTRICO</span>
-                            <div class="progress-bar"><div class="progress-fill" style="width: 88%;"></div></div>
-                        </div>
-                        <div class="skill-row">
-                            <span>RESOLUCIÓN DE CONFLICTOS EN SISTEMAS</span>
-                            <div class="progress-bar"><div class="progress-fill" style="width: 75%;"></div></div>
-                        </div>
-                    </div>
-
-                    <div class="nostromo-image-container">
-                        <div class="image-stack">
-                            <img src="terminal-hardware.jpg" alt="[HARDWARE_TERMINAL_INTERFACE]">
-                        </div>
-                        <div class="image-caption">REF: CONSOLA_DATOS_MU-TH-UR</div>
-                    </div>
-                </div>
-            </section>
-
-            <section id="education">
-                <h2>04 // INSTRUCCIÓN ACADÉMICA REGISTRADA</h2>
-                <div class="section-content-wrapper">
-                    <div class="text-block">
-                        <div class="cv-item">
-                            <div class="cv-header">
-                                <span class="cv-role">INGENIERÍA TECNOLÓGICA</span>
-                                <span class="cv-date">ETAPA FINAL</span>
-                            </div>
-                            <div class="cv-body">
-                                <p>Institución de Educación Superior Regional.</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="nostromo-image-container">
-                        <div class="image-stack">
-                            <img src="insignia-tecnica.jpg" alt="[INSIGNIA_CERTIFICACION_TECNICA]">
-                        </div>
-                        <div class="image-caption">REF: CERT_ID: RE-730-NL</div>
-                    </div>
-                </div>
-            </section>
-
         </div>
-
+           
         <footer>
             ADVERTENCIA SEGURIDAD: SÓLO PERSONAL AUTORIZADO. LAS VIOLACIONES DE PRIVACIDAD DE DATOS DE LA CORPORACIÓN CONLLEVAN LA RESCISIÓN INMEDIATA DEL CONTRATO OPERATIVO.
         </footer>
