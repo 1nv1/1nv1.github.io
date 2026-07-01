@@ -70,7 +70,8 @@
             font-size: 1.8rem;
             font-weight: bold;
             text-transform: uppercase;
-            text-shadow: 0 0 5px rgba(10, 15, 13, 0.5);
+            text-shadow: 0 0 10px rgba(10, 15, 13, 0.5);
+            color: var(--crt-green)
         }
 
         .header-pic-container {
@@ -210,7 +211,7 @@
         .image-stack img.active-layer {
             transform: translate(4px, 4px);
             z-index: 3;
-            opacity: 1 !important; /* Totalmente opaca */
+            opacity: .7 !important; /* Almost full opacity */
             mix-blend-mode: normal !important; /* Elimina la fusión transparente con el fondo */
             
             /* Conserva el tinte verde fosforescente con alta definición y contraste */
@@ -396,7 +397,7 @@
     <meta name="twitter:description" content="Industrial software developer · Electronic engineer · CFD enthusiast · Linux advanced user">
 
 </head>
-<body class="crt-green nostromo">
+<body class="crt-amber nostromo">
 
     <!-- CRT screen overlay layer -->
     <div class="screen">
@@ -537,6 +538,34 @@
                 </div>
             </section>
 
+            <!-- 2013 Section -->
+            <section id="experience-2013">
+                <h2>REGISTRO DE ACTIVIDADES (2013)</h2>
+                <div class="section-content-wrapper">
+                    <div class="text-block">
+                        <div class="cv-item">
+                            <div class="cv-header">
+                                <span class="cv-role">ESTUDIANTE ING. EN ELECTRÓNICA</span>
+                                <span class="cv-date">2013</span>
+                            </div>
+                            <div class="cv-body">
+                                <p><strong>Sector:</strong> Universidad Tecnológica Nacional - Facultad Regional del Neuquén[cite: 5]</p>
+                                <ul>
+                                    <li>Sigo estudiando y desarrollando diferentes proyectos que se van presentando.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="nostromo-image-container">
+                        <div class="image-stack">
+                            <img src="img/2013/dtm.jpg" alt="DTM 2013">
+                            <img src="img/2013/prototype.jpg" alt="PROTOTYPE 2013">
+                            <img src="img/2013/antenna.jpg" alt="ANTENNA 2013">
+                        </div>
+                        <div class="image-caption">REF: PROJECTS_MOD_LOG_2013</div>
+                    </div>
+                </div>
+            </section>
             <!-- 20012 Section -->
             <section id="experience-2012">
                 <h2>REGISTRO DE ACTIVIDADES (2012)</h2>
@@ -861,6 +890,17 @@
         document.addEventListener('click', startBgOnInteraction);
         document.addEventListener('keydown', startBgOnInteraction);
         document.addEventListener('touchstart', startBgOnInteraction);
+
+
+        const beam = document.querySelector('.screen .beam');
+        function updateRandom() {
+            const min = 1;
+            const max = 3;
+            const rndVal = Math.random() * (max - min) + min;
+            beam.style.setProperty('--random-value', `${rndVal}`);
+            setTimeout(updateRandom, 1000);
+        }
+        updateRandom();
     </script>
 
 </body>   

@@ -1,13 +1,13 @@
 /* BASE ================================================= */
 :root{
-    --crt-flicker-speed: 3.5s;
+    --crt-flicker-speed: 5.5s;
 
     --crt-warp-x: 1.0015;
     --crt-warp-y: 0.9985;
-    --crt-warp-speed: 6s;
+    --crt-warp-speed: 10s;
 
     --crt-breath-brightness: 1.04;
-    --crt-breath-speed: 8s;
+    --crt-breath-speed: 4s;
 
     --crt-scanline-dark: .18;
     --crt-scanline-light: .02;
@@ -15,8 +15,8 @@
     --crt-scanline-size: 2px;
 
     --crt-beam-height: 140px;
-    --crt-beam-blur: 6px;
-    --crt-beam-speed: 9.5s;
+    --crt-beam-blur: 4px;
+    --crt-beam-speed: 3.5s; /* Scanline speed */
     --crt-beam-opacity: .6;
 
     --crt-ghost-opacity: .04;
@@ -25,7 +25,7 @@
     --crt-overscan: -3px;
 }
 
-/* PRESETS ============================================== */
+/* Presets */
 
 /* OFFICE 98 */
 body.crt-office98{
@@ -124,30 +124,30 @@ body.crt-pvm ::selection{
 
 /* CAMADAS CRT ========================================== */
 body::after{
-content:"";
-position:fixed;
-inset:0;
-pointer-events:none;
-background:inherit;
-opacity: var(--crt-ghost-opacity);
-filter: blur(var(--crt-ghost-blur));
-z-index:2;
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    background:inherit;
+    opacity: var(--crt-ghost-opacity);
+    filter: blur(var(--crt-ghost-blur));
+    z-index:2;
 }
 
 .screen {
-position: fixed;
-inset: var(--crt-overscan);
-pointer-events: none;
-z-index:3;
-
-box-shadow:
-    inset 0 0 80px rgba(0,0,0,1),
-    inset 0 0 140px rgba(0,0,0,.8);
-
-animation:
-crtFlicker var(--crt-flicker-speed) linear infinite,
-crtWarp var(--crt-warp-speed) ease-in-out infinite,
-crtBreath var(--crt-breath-speed) ease-in-out infinite;
+    position: fixed;
+    inset: var(--crt-overscan);
+    pointer-events: none;
+    z-index:3;
+    
+    box-shadow:
+        inset 0 0 80px rgba(0,0,0,1),
+        inset 0 0 140px rgba(0,0,0,.8);
+    
+    animation:
+    crtFlicker var(--crt-flicker-speed) linear infinite,
+    crtWarp var(--crt-warp-speed) ease-in-out infinite,
+    crtBreath var(--crt-breath-speed) ease-in-out infinite;
 }
 
 /* Scanlines */
@@ -189,78 +189,79 @@ background: radial-gradient(
 
 /* Feixe */
 .screen .beam {
-position: absolute;
-left: 0;
-width: 100%;
-z-index: 3;
-pointer-events: none;
+    position: absolute;
+    left: 0;
+    width: 100%;
+    z-index: 3;
+    pointer-events: none;
+    rotate: 0deg;
 
-background: linear-gradient(
-    to bottom,
-    transparent 0%,
-    rgba(255,255,255,.05) 40%,
-    rgba(255,255,255,.18) 50%,
-    rgba(255,255,255,.05) 60%,
-    transparent 100%
-);
+    background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(255,255,255,.05) 05%,
+        rgba(255,255,255,.18) 10%,
+        rgba(255,255,255,.05) 15%,
+        transparent 100%
+    );
 
-height: var(--crt-beam-height);
-filter: blur(var(--crt-beam-blur));
-opacity: var(--crt-beam-opacity);
-animation: beamDrop var(--crt-beam-speed) cubic-bezier(.25,.1,.25,1) infinite;
+    height: var(--crt-beam-height);
+    filter: blur(var(--crt-beam-blur));
+    opacity: var(--crt-beam-opacity);
+    animation: beamDrop var(--crt-beam-speed) cubic-bezier(.25,.1,.25,var(--random-value, 2)) infinite;
 }
 
-/* ANIMAÇÕES ============================================ */
+/* Animations */
 @keyframes crtFlicker {
-0%  { opacity: 1; }
-44% { opacity: 1; }
-45% { opacity: 0.55; }
-46% { opacity: 1; }
-49% { opacity: 0.85; }
-50% { opacity: 1; }
-74% { opacity: 1; }
-75% { opacity: 0.5; }
-76% { opacity: 1; }
-79% { opacity: 0.8; }
-80% { opacity: 1; }
-100%{ opacity: 1; }
+    0%  { opacity: 1.00; }
+    44% { opacity: 1.00; }
+    45% { opacity: 0.55; }
+    46% { opacity: 1.00; }
+    49% { opacity: 0.85; }
+    50% { opacity: 1.00; }
+    74% { opacity: 1.00; }
+    75% { opacity: 0.50; }
+    76% { opacity: 1.00; }
+    79% { opacity: 0.80; }
+    80% { opacity: 1.00; }
+    100%{ opacity: 1.00; }
 }
 
 @keyframes crtWarp {
-0% { transform: scale(1,1); }
-50% { transform: scale(var(--crt-warp-x), var(--crt-warp-y)); }
-100% { transform: scale(1,1); }
+    0%   { transform: scale(1,1); }
+    50%  { transform: scale(var(--crt-warp-x), var(--crt-warp-y)); }
+    100% { transform: scale(1,1); }
 }
 
 @keyframes crtBreath{
-0%,100%{ filter: brightness(1); }
-50%{ filter: brightness(var(--crt-breath-brightness)); }
+    0%,100%{ filter: brightness(1); }
+    80%{ filter: brightness(var(--crt-breath-brightness)); }
 }
 
 @keyframes beamDrop {
-0% {
-    top: calc(-1 * var(--crt-beam-height));
-    opacity: 0;
-}
-5% {
-    opacity: var(--crt-beam-opacity);
-}
-45% {
-    top: 50%;
-    transform: translateY(-50%);
-    opacity: var(--crt-beam-opacity);
-}
-55% {
-    top: 50%;
-    transform: translateY(-50%);
-    opacity: var(--crt-beam-opacity);
-}
-95% {
-    opacity: var(--crt-beam-opacity);
-}
-100% {
-    top: 100%;
-    transform: translateY(0);
-    opacity: 0;
-}
+    0% {
+        top: calc(-1 * var(--crt-beam-height));
+        opacity: 0;
+    }
+    5% {
+        opacity: var(--crt-beam-opacity);
+    }
+    45% {
+        top: 50%;
+        transform: translateY(-50%);
+        opacity: var(--crt-beam-opacity);
+    }
+    55% {
+        top: 50%;
+        transform: translateY(-50%);
+        opacity: var(--crt-beam-opacity);
+    }
+    95% {
+        opacity: var(--crt-beam-opacity);
+    }
+    100% {
+        top: 100%;
+        transform: translateY(0);
+        opacity: 0;
+    }
 }
