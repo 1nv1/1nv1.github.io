@@ -703,6 +703,7 @@
 
     <!-- Computer sound element -->
     <audio id="nostromo-beep" src="sounds/computer.mp3" preload="auto"></audio>
+    <audio id="background-sound" src="sounds/nostromo_boot_up.mp3" preload="auto"></audio>
 
     <script>
         const scrollWindow = document.querySelector('.scroll-window');
@@ -712,7 +713,10 @@
         let currentSectionIndex = 0;
         let isScrolling;
 
-        beepSound.volume = 0.2;
+        function playBeep() {
+            beepSound.currentTime = 0;
+            beepSound.play().catch(() => {});
+        }
 
         // --- EFECTO TELEPO / TYPEWRITER ---
         function typeTitle(section) {
@@ -805,9 +809,7 @@
                         if (index !== currentSectionIndex) {
                             currentSectionIndex = index;
                             
-                            const playInstance = beepSound.cloneNode();
-                            playInstance.volume = beepSound.volume;
-                            playInstance.play().catch(e => console.log("Falta interacción del usuario"));
+                            playBeep();
                             
                             typeTitle(section);
                         }
@@ -821,6 +823,40 @@
 
             }, 60); 
         });
+
+                // --- BACKGROUND AUDIO (loop con silencios aleatorios) ---
+        const bgAudio = document.getElementById('background-sound');
+        let audioStarted = false;
+
+        function playBgAudio() {
+            bgAudio.currentTime = 0;
+            bgAudio.play().catch(() => {});
+        }
+
+        function scheduleNextPlay() {
+            const delay = Math.random() * 10000;
+            setTimeout(playBgAudio, delay);
+        }
+
+        function startBgOnInteraction() {
+            if (audioStarted) return;
+            audioStarted = true;
+
+            console.log('🎵 Starting background audio');
+
+            bgAudio.volume = 0.8; // 80 percentage
+            playBgAudio();
+            bgAudio.addEventListener('ended', scheduleNextPlay);
+
+            document.removeEventListener('click', startBgOnInteraction);
+            document.removeEventListener('keydown', startBgOnInteraction);
+            document.removeEventListener('touchstart', startBgOnInteraction);
+        }
+
+        // Wait for first user interaction
+        document.addEventListener('click', startBgOnInteraction);
+        document.addEventListener('keydown', startBgOnInteraction);
+        document.addEventListener('touchstart', startBgOnInteraction);
     </script>
 
 </body>   
