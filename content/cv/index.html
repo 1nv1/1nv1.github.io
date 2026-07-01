@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DEVILXOR CORP - PERSONAL DOSSIER v6.1</title>
+
+    <!-- ── CRT Curved Screen Effect ── -->
+    <link rel="stylesheet" href="css/crt.css">
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
 
@@ -34,49 +38,12 @@
             position: relative;
         }
 
-        /* EFECTO CRT CONSTANTE EN PANTALLA COMPLETA */
-        body::before {
-            content: " ";
-            display: block;
-            position: fixed;
-            top: 0; left: 0; bottom: 0; right: 0;
-            background: repeating-linear-gradient(
-                0deg,
-                rgba(0, 0, 0, 0.15) 0px,
-                rgba(0, 0, 0, 0.15) 1px,
-                transparent 1px,
-                transparent 3px
-            );
-            z-index: 9999;
-            pointer-events: none;
-        }
-
-        /* Efecto de monitor antiguo (flicker) */
-        body::after {
-            content: " ";
-            display: block;
-            position: fixed;
-            top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.05), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.05));
-            z-index: 9998;
-            opacity: 0.4;
-            pointer-events: none;
-            background-size: 100% 4px, 6px 100%;
-        }
-
-        @keyframes flicker {
-            0% { opacity: 0.99; }
-            50% { opacity: 1; }
-            100% { opacity: 0.98; }
-        }
-
         .terminal-container {
             width: 100%;
             height: 100%;
             padding: 25px;
             display: flex;
             flex-direction: column;
-            animation: flicker 0.2s infinite;
             background-color: rgba(10, 15, 13, 0.95);
         }
 
@@ -253,6 +220,22 @@
             border-color: var(--crt-green);
         }
 
+        /* Scanlines sobre las imágenes en primer plano */
+        .nostromo-image-container::after {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.15) 0px,
+                rgba(0, 0, 0, 0.15) 1px,
+                transparent 4px,
+                transparent 8px
+            );
+            pointer-events: none;
+            z-index: 5;
+        }
+
         /* ANIMACIÓN AL PASAR EL CURSOR (HOVER MULTIPLICADO) */
         .nostromo-image-container:hover .image-stack img.back-layer {
             transform: translate(-28px, -28px);
@@ -263,16 +246,6 @@
         .nostromo-image-container:hover .image-stack img.active-layer {
             transform: translate(28px, 28px);
             border-color: #fff;
-        }
-
-        /* Líneas de escaneo sutiles sobre el contenedor general */
-        .nostromo-image-container::after {
-            content: "";
-            position: absolute;
-            top: 5px; left: 5px; right: 5px; bottom: 5px;
-            background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.15) 0px, rgba(0, 0, 0, 0.15) 1px, transparent 1px, transparent 3px);
-            pointer-events: none;
-            z-index: 5;
         }
 
         .image-caption {
@@ -423,7 +396,12 @@
     <meta name="twitter:description" content="Industrial software developer · Electronic engineer · CFD enthusiast · Linux advanced user">
 
 </head>
-<body>
+<body class="crt-green nostromo">
+
+    <!-- CRT screen overlay layer -->
+    <div class="screen">
+        <div class="beam"></div>
+    </div>
 
     <div class="terminal-container">
         
