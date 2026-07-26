@@ -1,13 +1,13 @@
 /* BASE ================================================= */
 :root{
-    --crt-flicker-speed: 5.5s;
+    --crt-flicker-speed: 15.5s;
 
     --crt-warp-x: 1.0015;
     --crt-warp-y: 0.9985;
-    --crt-warp-speed: 10s;
+    --crt-warp-speed: 20s;
 
     --crt-breath-brightness: 1.04;
-    --crt-breath-speed: 4s;
+    --crt-breath-speed: 15s;
 
     --crt-scanline-dark: .18;
     --crt-scanline-light: .02;
@@ -16,7 +16,7 @@
 
     --crt-beam-height: 140px;
     --crt-beam-blur: 4px;
-    --crt-beam-speed: 3.5s; /* Scanline speed */
+    --crt-beam-speed: 30s; /* Scanline speed */
     --crt-beam-opacity: .6;
 
     --crt-ghost-opacity: .04;
@@ -55,7 +55,9 @@ body.crt-office98 ::selection{
 /* GREEN TERMINAL */
 body.crt-green{
     background:#001400;
-    color:#6CFF6C;
+    /* color:#6CFF6C; */
+    color: #ffffff;
+
     text-shadow:0 0 6px rgba(108,255,108,.5);
 
     --crt-scanline-dark:.28;
@@ -76,7 +78,7 @@ body.crt-green ::selection{
 /* AMBER */
 body.crt-amber{
     background:#140d00;
-    color:#ffb000;
+    color:#ffFFFF;
 
     text-shadow:
         0 0 3px rgba(255,176,0,.6),
