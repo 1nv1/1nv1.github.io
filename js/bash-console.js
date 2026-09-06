@@ -79,10 +79,23 @@
 
     titleBar.style.userSelect = 'none';
 
+    // Double-click on the title bar toggles maximize / restore
+    titleBar.addEventListener('dblclick', function (e) {
+        e.stopPropagation();
+        toggleMaximize();
+    });
+
     titleBar.addEventListener('mousedown', onDragStart);
+
+    // Toggle the console between a normal floating window and full screen.
+    function toggleMaximize() {
+        const on = !consoleEl.classList.contains('bash-maximized');
+        consoleEl.classList.toggle('bash-maximized', on);
+    }
 
     function onDragStart(e) {
         if (e.button !== 0) return;
+        if (consoleEl.classList.contains('bash-maximized')) return;   // no dragging a maximized window
         isDragging = true;
         titleBar.style.cursor = 'grabbing';
 

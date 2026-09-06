@@ -83,23 +83,12 @@
                                 ]
                             },
                             {
+                                // Option A: home "Documents" now points at the SAME
+                                // physical PDF folder as the sidebar shortcut, so the
+                                // two never disagree about what they contain.
                                 name: 'Documents',
                                 type: 'dir',
-                                children: [
-                                    {
-                                        name: 'about.txt',
-                                        type: 'file',
-                                        size: 2048,
-                                        modified: '2025-03-10 09:15'
-                                    },
-                                    {
-                                        name: 'README.md',
-                                        type: 'markdown',
-                                        realPath: 'README.md',
-                                        size: 1024,
-                                        modified: '2025-02-28 11:00'
-                                    }
-                                ]
+                                children: buildDocumentsChildren()
                             },
                             {
                                 name: 'Projects',
@@ -571,6 +560,7 @@
             btn.className = 'fe-title-btn ' + cls;
             if (cls === 'close') btn.addEventListener('click', closeExplorer);
             if (cls === 'minimize') btn.addEventListener('click', minimizeExplorer);
+            if (cls === 'maximize') btn.addEventListener('click', toggleMaximizeExplorer);
             titleBtns.appendChild(btn);
         });
 
@@ -707,6 +697,14 @@
         // Click on title bar brings to front
         titleBar.addEventListener('mousedown', bringToFront);
 
+        // Double-click on the title bar toggles maximize / restore
+        titleBar.addEventListener('dblclick', function (e) {
+            if (e.target.classList.contains('fe-title-btn')) return;
+            e.stopPropagation();
+            toggleMaximizeExplorer();
+            bringToFront();
+        });
+
         // Click on any part of the window brings to front
         win.addEventListener('mousedown', bringToFront);
 
@@ -744,6 +742,7 @@
         handle.addEventListener('mousedown', function (e) {
             if (e.button !== 0) return;
             if (e.target.classList.contains('fe-title-btn')) return;
+            if (win.classList.contains('fe-maximized')) return;   // no dragging a maximized window
             isDragging = true;
             handle.style.cursor = 'grabbing';
 
@@ -810,6 +809,18 @@
 
     function minimizeExplorer() {
         closeExplorer();
+    }
+
+    // Toggle the window between a normal floating window and full-screen.
+    // Maximize is just a CSS override (fe-maximized), so restoring simply
+    // removes the class and the stored left/top/size reapply as they were.
+    function toggleMaximizeExplorer(force) {
+        if (!fileExplorerEl) buildExplorer();
+        const goingMax = (typeof force === 'boolean') ? force : !fileExplorerEl.classList.contains('fe-maximized');
+        fileExplorerEl.classList.toggle('fe-maximized', goingMax);
+    }
+    function isExplorerMaximized() {
+        return !!fileExplorerEl && fileExplorerEl.classList.contains('fe-maximized');
     }
 
     // ─────────────────────────────────────────────

@@ -347,3 +347,81 @@
     .pv-title-text { width: auto; margin-right: 0; font-size: 12px; }
     .pv-thumbs { width: 110px; min-width: 110px; }
 }
+
+/* === MAXIMIZED: fill the whole viewport === */
+.pdf-viewer.pv-maximized {
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: auto !important;
+    height: auto !important;
+    max-width: 100vw !important;
+    border-radius: 0 !important;
+    animation: none;
+}
+
+/* === HIDE the lateral page-thumbnail column ===
+   (the main reading area then uses all of the body width) */
+.pdf-viewer.pv-thumbs-hidden .pv-thumbs {
+    display: none;
+}
+
+/* Red "Close" button styling inside dialogs */
+.pv-btn.pv-danger {
+    background: #c33;
+    color: #fff;
+}
+.pv-btn.pv-danger:hover {
+    background: #e04040;
+}
+
+/* === CONFIRM-BEFORE-CLOSE dialog === */
+.pv-dialog-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    animation: pvDialogFade 0.15s ease-out;
+}
+@keyframes pvDialogFade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+.pv-dialog {
+    width: min(320px, calc(100% - 40px));
+    background: rgba(28, 28, 46, 0.97);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+    padding: 18px 18px 16px;
+    transform: scale(0.98);
+    animation: pvDialogPop 0.14s ease-out forwards;
+}
+@keyframes pvDialogPop {
+    to { transform: scale(1); }
+}
+.pv-dialog-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.95);
+    margin-bottom: 8px;
+}
+.pv-dialog-msg {
+    font-size: 12.5px;
+    color: rgba(255, 255, 255, 0.65);
+    line-height: 1.4;
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+.pv-dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 18px;
+}

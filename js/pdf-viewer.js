@@ -25,6 +25,9 @@
     let curPage = 1;            // 1-indexed page being shown
     let renderToken = 0;        // guards against stale async renders
     let docTitle = 'document.pdf';
+    let thumbsHidden = false;   // is the page-thumbnail sidebar collapsed
+    let lastFilePath = '';      // documents/x.pdf currently open (deep-link)
+    let lastFilePage = 1;       // current page number (for deep links)
 
     // pdf.worker must ship from the same origin to allow a true web worker.
     // It is self-hosted at libs/pdfjs/ and loaded from index.html.
@@ -43,6 +46,28 @@
         const d = new Date();
         d.setTime(d.getTime() + (days || 365) * 24 * 60 * 60 * 1000);
         document.cookie = n + '=' + encodeURIComponent(v) + '; expires=' + d.toUTCString() + '; path=/';
+    }
+
+    // ---- Last-opened document persistence (for "resume where you left off") ----
+    const LAST_COOKIE = 'pdfLastDoc';
+    function loadLastState() {
+        try {
+            const raw = getCookie(LAST_COOKIE);
+            return raw ? JSON.parse(raw) : null;
+        } catch (e) { return null; }
+    }
+    function persistState() {
+        if (!viewerEl || !lastFilePath) return;
+        try {
+            setCookie(LAST_COOKIE, JSON.stringify({
+                file: lastFilePath,
+                title: docTitle,
+                page: curPage,
+                zoom: zoom,
+                max: isMaximized(),
+                thumbs: thumbsHidden
+            }));
+        } catch (e) { /* ignore */ }
     }
 
     // ---- Shared z-index management (kept in sync with other windows) ----
@@ -65,7 +90,10 @@
         zoomin: '<svg width="14" height="14" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="8" cy="8" r="5.5"/><path d="M12 12l4 4M5.5 8h5M8 5.5v5"/></svg>',
         zoomout:'<svg width="14" height="14" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="8" cy="8" r="5.5"/><path d="M12 12l4 4M5.5 8h5"/></svg>',
         fitw:   '<svg width="15" height="14" viewBox="0 0 18 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4v8M16 4v8M6 3h6M6 13h6"/></svg>',
-        rotate: '<svg width="15" height="16" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M15 8a8 8 0 1 1-2.5-5.8M14.5 1.5V6H10"/></svg>'
+        rotate: '<svg width="15" height="16" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M15 8a8 8 0 1 1-2.5-5.8M14.5 1.5V6H10"/></svg>',
+        thumbs: '<svg width="16" height="14" viewBox="0 0 18 14" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="1.5" y="1" width="6" height="12" rx="1.2"/><rect x="10.5" y="1" width="6" height="12" rx="1.2"/><path d="M4 4.5v5M13.5 4.5v5M9.2 2l4 4-4 4z"/></svg>',
+        share:  '<svg width="15" height="15" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5.5" cy="9" r="2.3"/><circle cx="14" cy="4.6" r="2.3"/><circle cx="14" cy="13.4" r="2.3"/><path d="M7.6 8l4.4-2.3M7.6 10l4.4 2.3"/></svg>',
+        link:   '<svg width="15" height="14" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 10.5a3.5 3.5 0 0 0 5 0l2-2a3.5 3.5 0 0 0-5-5l-1.4 1.4"/><path d="M10 7.5a3.5 3.5 0 0 0-5 0l-2 2a3.5 3.5 0 0 0 5 5l1.4-1.4"/></svg>'
     };
 
     // ------------------------------------------------------------------
@@ -78,8 +106,13 @@
         // --- Title bar ---
         const titleBar = el('div', 'pv-title-bar');
         const tBtns = el('div', 'pv-title-buttons');
-        [['close', closeViewer], ['minimize', minimizeViewer], ['maximize', fitWidth]].forEach(function (pair) {
+        // Traffic-light buttons: red closes, yellow maximizes, green minimizes.
+        var titleLabels = { close: 'Close (asks to confirm)', minimize: 'Maximize / restore', maximize: 'Minimize (hide)' };
+        [['close', requestClose], ['minimize', toggleMaximize], ['maximize', minimizeViewer]].forEach(function (pair) {
             const b = el('div', 'pv-title-btn ' + pair[0]);
+            b.title = titleLabels[pair[0]] || pair[0];
+            b.setAttribute('role', 'button');
+            b.setAttribute('aria-label', b.title);
             b.addEventListener('click', pair[1]);
             tBtns.appendChild(b);
         });
@@ -104,6 +137,8 @@
         const zoomInB = tbtn(IC.zoomin, 'Zoom in', function () { setZoom(zoom + 0.15); });
         const fitB = tbtn(IC.fitw, 'Fit page width', fitWidth);
         const rotB = tbtn(IC.rotate, 'Rotate page', rotatePage);
+        const thumbsB = tbtn(IC.thumbs, 'Show page thumbnails', toggleThumbs);
+        const shareB = tbtn(IC.share, 'Copy a link to this document', copyShareLink);
 
         toolbar.appendChild(prevBtn);
         toolbar.appendChild(nextBtn);
@@ -114,6 +149,10 @@
         toolbar.appendChild(sep());
         toolbar.appendChild(fitB);
         toolbar.appendChild(rotB);
+        toolbar.appendChild(sep());
+        toolbar.appendChild(thumbsB);
+        toolbar.appendChild(sep());
+        toolbar.appendChild(shareB);
 
         const pageNav = el('div', 'pv-page-nav');
         const input = el('input', 'pv-page-input');
@@ -162,12 +201,28 @@
         win._prevBtn = prevBtn;
         win._nextBtn = nextBtn;
         win._status = statusL;
+        win._thumbsBtn = thumbsB;
+        win._shareBtn = shareB;
         win.__rotate = 0;
+
+        // Restore the user's preference to keep the thumbnail sidebar. Visible by
+        // default. When hidden we add a class that collapses the thumbs column so
+        // the page viewport fills more space.
+        thumbsHidden = getCookie('pvThumbs') === 'hidden';
+        applyThumbs();
 
         // --- Drag ---
         makeDraggable(win, titleBar);
         titleBar.addEventListener('mousedown', bringToFront);
         win.addEventListener('mousedown', bringToFront);
+
+        // Double-click on the title bar toggles maximize / restore
+        titleBar.addEventListener('dblclick', function (e) {
+            if (e.target.classList.contains('pv-title-btn')) return;
+            e.stopPropagation();
+            toggleMaximize();
+            bringToFront();
+        });
 
         // Sync "current page" as user scrolls
         let stT = null;
@@ -212,6 +267,7 @@
         else if (e.key === '+' || e.key === '=') { setZoom(zoom + 0.15); }
         else if (e.key === '-') { setZoom(zoom - 0.15); }
         else if (e.key === 'f' || e.key === 'F') { fitWidth(); }
+        else if (e.key === 'm' || e.key === 'M') { toggleMaximize(); }
     }
 
     // ------------------------------------------------------------------
@@ -370,6 +426,7 @@
         if (!pdfDoc) return;
         n = clamp(n, 1, pdfDoc.numPages);
         curPage = n;
+        lastFilePage = n;
         const o = $();
         const shell = o.wrap && o.wrap.querySelector('.pv-page-canvas[data-page="' + n + '"]');
         if (shell) shell.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -412,6 +469,7 @@
         handle.addEventListener('mousedown', function (e) {
             if (e.button !== 0) return;
             if (e.target.classList.contains('pv-title-btn')) return;
+            if (win.classList && win.classList.contains('pv-maximized')) return;   // no dragging a fullscreen window
             dragging = true; handle.style.cursor = 'grabbing';
             const r = win.getBoundingClientRect();
             ix = r.left; iy = r.top; sx = e.clientX; sy = e.clientY;
@@ -446,11 +504,33 @@
         return (typeof location !== 'undefined') && location.protocol === 'file:';
     }
 
-    function openViewer(fileName, fileUrl) {
+    function openViewer(fileName, fileUrl, opts) {
         if (!viewerEl) buildViewer();
         configurePdfJs();
+        opts = opts || {};
 
         docTitle = fileName || 'document.pdf';
+        lastFilePath = (typeof fileUrl === 'string') ? fileUrl : (fileName || '');
+        lastFilePage = 1;
+
+        // Optional: open straight into full-screen and/or at a given page.
+        const wantMax = opts.maximize === true;
+        const pageGiven = parseInt(opts.page, 10) > 0;
+        const wantPage = parseInt(opts.page, 10) || 1;
+        // "Explicit" opens (deep links / API with page or maximize) should honour
+        // exactly what they asked. Plain opens (e.g. double-click in the explorer)
+        // are allowed to resume the saved session for the same file instead.
+        const explicitOpen = wantMax || pageGiven;
+        // Set the requested visual state immediately — if this open asked to be
+        // maximized (e.g. a deep link with &max=1) apply it right now so the
+        // window is full-screen from the moment it appears. Otherwise clear any
+        // leftover maximize from an earlier session.
+        if (wantMax) {
+            viewerEl.classList.add('pv-maximized');
+        } else if (viewerEl.classList.contains('pv-maximized')) {
+            viewerEl.classList.remove('pv-maximized');
+        }
+
         viewerEl._title.textContent = '❯ Document Viewer — ' + docTitle;
 
         // show window
@@ -478,10 +558,38 @@
         pdfLib.getDocument(fileUrl).promise.then(function (doc) {
             pdfDoc = doc;
             renderToken++;            // cancel any previous render
-            baseScale = 1; zoom = 1.0;
-            viewerEl._zoom.textContent = '100%';
             viewerEl.__rotate = 0;
-            computeBaseScale().then(function () { renderDocument(++renderToken); });
+
+            // Resume a previous reading session when the same file is opened
+            // plainly (double-click), but never override an explicit open.
+            const resume = loadLastState();
+            const canResume = !!resume && !explicitOpen && resume.file === fileUrl;
+            zoom = canResume ? clamp(Math.round((resume.zoom || 1) * 100) / 100, 0.25, 5) : 1.0;
+            baseScale = 1;
+            viewerEl._zoom.textContent = (zoom === 1) ? '100%' : (Math.round(zoom * 100) + '%');
+
+            computeBaseScale().then(function () {
+                renderDocument(++renderToken);
+
+                let page = 1;
+                if (explicitOpen) {
+                    if (wantMax) toggleMaximize(true);
+                    page = wantPage;
+                } else if (canResume) {
+                    if (resume.max) toggleMaximize(true);
+                    if (typeof resume.thumbs === 'boolean') {
+                        thumbsHidden = resume.thumbs;
+                        applyThumbs();
+                        requestAnimationFrame(refitViewport);
+                    }
+                    page = parseInt(resume.page, 10) || 1;
+                }
+                page = clamp(page, 1, doc.numPages);
+                if (page > 1) gotoPage(page);
+
+                persistState();      // keep the last-opened doc record fresh
+                updateAddressBar();
+            });
         }).catch(function (err) {
             viewerEl._wrap.innerHTML =
                 '<div class="pv-error"><div class="icon">📄</div><span>Could not open this PDF.</span>' +
@@ -489,6 +597,17 @@
             if (viewerEl._status) viewerEl._status.textContent = 'Error opening document';
             console.error('pdf open error', err);
         });
+    }
+
+    // Reflect the open file in the address bar so the page can be shared/reloaded
+    // with the same state (skipped when previewing from a local file:// origin).
+    function updateAddressBar() {
+        if (runningOverFileProtocol()) return;
+        if (!lastFilePath) return;
+        try {
+            const url = buildShareUrl();
+            if (window.history && window.history.replaceState) window.history.replaceState(null, '', url);
+        } catch (e) { /* ignore */ }
     }
 
     // Friendly explanation when someone opens index.html directly (file://).
@@ -508,6 +627,7 @@
 
     function closeViewer() {
         if (viewerEl) {
+            persistState();               // remember where the user left off
             viewerEl.style.display = 'none';
             viewerEl.classList.remove('open');
             isOpen = false;
@@ -516,8 +636,127 @@
     }
     function minimizeViewer() { closeViewer(); }
 
+    // Red button -> ask the user for confirmation before actually closing.
+    function requestClose() {
+        if (!viewerEl) return;
+        if (viewerEl.querySelector('.pv-dialog-overlay')) return;   // a dialog is already open
+
+        const overlay = el('div', 'pv-dialog-overlay');
+        const box = el('div', 'pv-dialog');
+        const title = el('div', 'pv-dialog-title');
+        title.textContent = 'Close document viewer?';
+        const msg = el('div', 'pv-dialog-msg');
+        msg.textContent = docTitle ? ('“' + docTitle + '” will be closed and unloaded.') : 'The document viewer window will close.';
+        const actions = el('div', 'pv-dialog-actions');
+
+        const cancel = el('button', 'pv-btn');
+        cancel.textContent = 'Cancel';
+        cancel.title = 'Keep the viewer open';
+        const confirm = el('button', 'pv-btn');
+        confirm.textContent = 'Close';
+        confirm.title = 'Close the viewer';
+        confirm.classList.add('pv-danger');
+
+        function teardown() {
+            viewerEl.classList.remove('pv-dialog-open');
+            if (overlay.parentNode) viewerEl.removeChild(overlay);
+        }
+        cancel.addEventListener('click', function (e) { e.stopPropagation(); teardown(); });
+        confirm.addEventListener('click', function (e) {
+            e.stopPropagation();
+            teardown();
+            closeViewer();
+        });
+        overlay.addEventListener('mousedown', function (e) { e.stopPropagation(); });   // keep it modal
+        actions.appendChild(cancel);
+        actions.appendChild(confirm);
+        box.appendChild(title);
+        box.appendChild(msg);
+        box.appendChild(actions);
+        overlay.appendChild(box);
+        viewerEl.appendChild(overlay);
+        viewerEl.classList.add('pv-dialog-open');
+    }
+
     // ------------------------------------------------------------------
-    //  PUBLIC API
+    //  MAXIMIZE / HIDE-SIDEBAR / SHARE
+    // ------------------------------------------------------------------
+    // Re-run a width-fit so the open pages reflow after the window geometry
+    // changes (maximize, restore, or collapsing/expanding the thumbnail column).
+    function refitViewport() {
+        if (!pdfDoc) return;
+        computeBaseScale().then(function () { renderDocument(); });
+    }
+
+    // Fill the whole viewport (or collapse back to a windowed size).
+    function toggleMaximize(force) {
+        if (!viewerEl) { buildViewer(); }
+        const goingMax = (typeof force === 'boolean') ? force : !viewerEl.classList.contains('pv-maximized');
+        viewerEl.classList.toggle('pv-maximized', goingMax);
+        requestAnimationFrame(refitViewport);     // pages now fit the new width
+    }
+    function isMaximized() {
+        return !!viewerEl && viewerEl.classList.contains('pv-maximized');
+    }
+
+    // Show/hide the left page-thumbnail sidebar (changes the available width).
+    function applyThumbs() {
+        if (!viewerEl) return;
+        viewerEl.classList.toggle('pv-thumbs-hidden', !!thumbsHidden);
+        const b = viewerEl._thumbsBtn;
+        if (b) {
+            b.title = thumbsHidden ? 'Show page thumbnails' : 'Hide page thumbnails';
+            b.classList.toggle('pv-active', !thumbsHidden);
+        }
+        setCookie('pvThumbs', thumbsHidden ? 'hidden' : 'visible');
+    }
+    function toggleThumbs() {
+        if (!viewerEl) { buildViewer(); }
+        thumbsHidden = !thumbsHidden;
+        applyThumbs();
+        requestAnimationFrame(refitViewport);
+    }
+
+    // Build a shareable URL that re-opens the current file right away.
+    function currentSearch() {
+        try { return window.location.search.replace(/[?&]pdf=[^&]*/i, '').replace(/[?&]page=[0-9]+/i, '')
+            .replace(/[?&]max=[0-9a-z]*/i, ''); } catch (e) { return ''; }
+    }
+    function buildShareUrl() {
+        const base = window.location.href.split('?')[0];
+        if (!lastFilePath) return base;
+        let q = currentSearch();
+        q = (((q && q[0] !== '?') ? '?' : q) + '&pdf=' + encodeURIComponent(lastFilePath));
+        if (lastFilePage > 1) q += '&page=' + lastFilePage;
+        q += '&max=1';   // the reader always lands maximized for the best view
+        return base + q;
+    }
+    function copyShareLink() {
+        if (!lastFilePath) { flashStatus('Open a document first'); return; }
+        const url = buildShareUrl();
+        const ok = function () { flashStatus('Link copied ✂ ' + decodeURIComponent(lastFilePath)); };
+        const fallback = function () {
+            const ta = el('textarea', '');
+            ta.value = url; ta.style.cssText = 'position:absolute;left:-9999px;top:-9999px';
+            document.body.appendChild(ta); ta.select();
+            try { if (document.execCommand('copy')) ok(); else flashStatus('Copy failed'); }
+            catch (e) { flashStatus('Copy failed'); }
+            document.body.removeChild(ta);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(url).then(ok).catch(fallback);
+        } else fallback();
+    }
+    function flashStatus(msg) {
+        if (!viewerEl) return;
+        const st = viewerEl.querySelector('.pv-status-left');
+        if (st) st.textContent = msg;
+        if (window.clearTimeout) clearTimeout(flashStatus._t);
+        flashStatus._t = setTimeout(function () { updateStatus(); }, 2600);
+    }
+
+    // ------------------------------------------------------------------
+    //  OPEN / CLOSE
     // ------------------------------------------------------------------
     window.PDFViewer = {
         open: openViewer,
@@ -525,7 +764,34 @@
         isOpen: function () { return !!viewerEl && viewerEl.style.display === 'flex'; },
         zoomIn: function () { setZoom(zoom + 0.15); },
         zoomOut: function () { setZoom(zoom - 0.15); },
-        gotoPage: gotoPage
+        gotoPage: gotoPage,
+        maximize: function (v) { toggleMaximize(typeof v === 'boolean' ? v : true); },
+        isMaximized: isMaximized,
+        toggleSidebar: toggleThumbs,
+        copyLink: copyShareLink
     };
+
+    // ── Deep link: ?pdf=documents/x.pdf[&page=N][&max=1]
+    // Opens the document immediately, maximized if requested. Lets anyone share
+    // "…/?pdf=documents/x.pdf" and the visitor lands straight in the document.
+    function handleDeepLink() {
+        try {
+            if (!window.location || !window.location.search) return;
+            const params = new URLSearchParams(window.location.search);
+            const file = params.get('pdf');
+            if (!file) return;
+            const name = (file.split('/').pop()) || file;
+            const opts = {};
+            if (params.get('max') === '1') opts.maximize = true;
+            const pg = parseInt(params.get('page'), 10);
+            if (pg > 1) opts.page = pg;
+            if (window.PDFViewer) window.PDFViewer.open(name, file, opts);
+        } catch (e) { console.warn('pdf deep link', e); }
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', handleDeepLink);
+    } else {
+        handleDeepLink();
+    }
 
 })();

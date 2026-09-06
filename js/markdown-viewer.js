@@ -43,11 +43,12 @@
 
         const titleBtns = document.createElement('div');
         titleBtns.className = 'md-title-buttons';
-        ['close', 'minimize'].forEach(cls => {
+        ['close', 'minimize', 'maximize'].forEach(cls => {
             const btn = document.createElement('div');
             btn.className = 'md-title-btn ' + cls;
             if (cls === 'close') btn.addEventListener('click', closeViewer);
             if (cls === 'minimize') btn.addEventListener('click', minimizeViewer);
+            if (cls === 'maximize') btn.addEventListener('click', function (e) { e.stopPropagation(); toggleMaximizeMarkdown(); });
             titleBtns.appendChild(btn);
         });
 
@@ -99,6 +100,14 @@
         titleBar.addEventListener('mousedown', bringToFront);
         win.addEventListener('mousedown', bringToFront);
 
+        // Double-click on the title bar toggles maximize / restore
+        titleBar.addEventListener('dblclick', function (e) {
+            if (e.target.classList.contains('md-title-btn')) return;
+            e.stopPropagation();
+            toggleMaximizeMarkdown();
+            bringToFront();
+        });
+
         // Restore saved position, else default
         const saved = getCookie('mdViewerPos');
         const mdW = 780;
@@ -127,6 +136,7 @@
         handle.addEventListener('mousedown', function (e) {
             if (e.button !== 0) return;
             if (e.target.classList.contains('md-title-btn')) return;
+            if (viewerEl.classList.contains('md-maximized')) return;   // no dragging a maximized window
             isDragging = true;
             handle.style.cursor = 'grabbing';
 
@@ -228,10 +238,22 @@
         closeViewer();
     }
 
+    // Toggle the window between a normal floating window and full-screen.
+    function toggleMaximizeMarkdown(force) {
+        if (!viewerEl) buildViewer();
+        const goingMax = (typeof force === 'boolean') ? force : !viewerEl.classList.contains('md-maximized');
+        viewerEl.classList.toggle('md-maximized', goingMax);
+    }
+    function isMdMaximized() {
+        return !!viewerEl && viewerEl.classList.contains('md-maximized');
+    }
+
     // ── Public API ──
     window.MarkdownViewer = {
         open: openViewer,
         close: closeViewer,
+        maximize: function (v) { toggleMaximizeMarkdown(typeof v === 'boolean' ? v : true); },
+        isMaximized: isMdMaximized,
         isOpen: function () { return isOpen; }
     };
 
