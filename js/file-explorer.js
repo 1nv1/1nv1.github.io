@@ -10,6 +10,46 @@
     // ─────────────────────────────────────────────
     //  CONFIG: Define your virtual filesystem here
     // ─────────────────────────────────────────────
+
+    // ─────────────────────────────────────────────
+    //  PROJECT `documents/` FOLDER  (where your personal PDFs live)
+    //  Mirrors the physical `documents/` folder at the project root.
+    // ─────────────────────────────────────────────
+    // The virtual `/documents` folder exposed by this explorer is built from
+    // this manifest, mapping each entry onto the real file documents/<name>.
+    //
+    // Declared BEFORE ROOT because the ROOT literal below builds /documents
+    // synchronously from it when the object is created.
+    //
+    // To keep it in sync automatically after adding/removing files inside the
+    // `documents/` folder, run (from the project root):
+    //
+    //     node scripts/scan-documents.js
+    //
+    const DOCUMENTS_MANIFEST = [
+        { name: 'lorem-ipsum.pdf', size: 77123, modified: '2026-09-05 21:42' }
+    ];
+
+    // Build explorer nodes that point at the real files under documents/.
+    function buildDocumentsChildren() {
+        return DOCUMENTS_MANIFEST.map(function (item) {
+            const rawName = item.name || '';
+            const lower = rawName.toLowerCase();
+            let type = 'file';
+            if (/\.pdf$/i.test(rawName)) type = 'pdf';
+            else if (/\.(png|jpe?g|gif|svg|ico)$/.test(lower)) type = 'image';
+            else if (/\.md$/i.test(lower)) type = 'markdown';
+
+            return {
+                name: rawName,
+                type: type,
+                realPath: 'documents/' + rawName,
+                size: item.size || 0,
+                modified: item.modified || '—'
+            };
+        });
+    }
+
     const ROOT = {
         name: '/',
         type: 'dir',
@@ -139,6 +179,14 @@
                 ]
             },
             {
+                // Maps directly onto the physical `documents/` folder at the
+                // project ROOT. Its contents are derived from DOCUMENTS_MANIFEST
+                // above (see buildDocumentsChildren()).
+                name: 'documents',
+                type: 'dir',
+                children: buildDocumentsChildren()
+            },
+            {
                 name: 'etc',
                 type: 'dir',
                 children: [
@@ -236,11 +284,13 @@
         if (node.type === 'dir') return 'Directory';
         if (node.type === 'image') return 'Image';
         if (node.type === 'markdown') return 'Markdown';
+        if (node.type === 'pdf') return 'PDF Document';
         const ext = node.name.split('.').pop().toLowerCase();
         const types = {
             'txt': 'Plain Text', 'md': 'Markdown', 'html': 'HTML',
             'css': 'Stylesheet', 'js': 'JavaScript', 'png': 'PNG Image',
             'jpg': 'JPEG Image', 'jpeg': 'JPEG Image', 'gif': 'GIF Image',
+            'pdf': 'PDF Document',
             'svg': 'SVG Image', 'ico': 'Icon', 'conf': 'Config File',
         };
         return types[ext] || 'Unknown';
@@ -250,8 +300,9 @@
         if (node.type === 'dir') return '📁';
         if (node.type === 'image') return '🖼️';
         if (node.type === 'markdown') return '📝';
+        if (node.type === 'pdf') return '📕';
         const ext = node.name.split('.').pop().toLowerCase();
-        const icons = { 'txt': '📄', 'md': '📝', 'html': '🌐', 'css': '🎨', 'js': '⚡', 'conf': '⚙️' };
+        const icons = { 'txt': '📄', 'md': '📝', 'html': '🌐', 'css': '🎨', 'js': '⚡', 'conf': '⚙️', 'pdf': '📕' };
         return icons[ext] || '📄';
     }
 
@@ -358,6 +409,13 @@
                         window.MarkdownViewer.open(child.name, child.realPath);
                     } else {
                         console.warn('MarkdownViewer not available');
+                    }
+                } else if (child.type === 'pdf') {
+                    // Open in Document (PDF) Viewer over the desktop
+                    if (window.PDFViewer) {
+                        window.PDFViewer.open(child.name, child.realPath);
+                    } else {
+                        console.warn('PDFViewer not available');
                     }
                 }
             });
@@ -586,7 +644,7 @@
             { label: 'Home', path: '/home/nelson', icon: '🏠' },
             { label: 'Desktop', path: '/home/nelson/Desktop', icon: '🖥️' },
             { label: 'Pictures', path: '/home/nelson/Pictures', icon: '🖼️' },
-            { label: 'Documents', path: '/home/nelson/Documents', icon: '📄' },
+            { label: 'Documents', path: '/documents', icon: '📄' },
             { label: 'Projects', path: '/home/nelson/Projects', icon: '📁' },
             { label: 'File System', path: '/', icon: '💻' },
         ];

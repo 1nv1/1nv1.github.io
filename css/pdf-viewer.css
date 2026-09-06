@@ -1,0 +1,349 @@
+/*
+ * PDF Viewer - Simulated native document reader (Evince/Okular-like)
+ * Draggable OS window that renders real PDF pages via Mozilla PDF.js.
+ * Styling is coherent with the rest of the pseudo-desktop.
+ */
+
+.pdf-viewer {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    width: 860px;
+    height: 600px;
+    background: rgba(30, 30, 50, 0.97);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    box-shadow:
+        0 24px 80px rgba(0, 0, 0, 0.6),
+        0 0 60px rgba(0, 0, 0, 0.3);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    position: fixed;
+    z-index: 1999;
+    animation: pdfWindowOpen 0.2s ease-out;
+}
+
+.pdf-viewer.open {
+    display: flex;
+}
+
+.pdf-viewer.active-window {
+    z-index: 2000;
+}
+
+@keyframes pdfWindowOpen {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+/* === TITLE BAR === */
+.pv-title-bar {
+    display: flex;
+    align-items: center;
+    height: 38px;
+    background: linear-gradient(180deg, rgba(45, 45, 68, 0.9) 0%, rgba(30, 30, 50, 0.9) 100%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px 12px 0 0;
+    padding: 0 12px;
+    user-select: none;
+    cursor: grab;
+    flex-shrink: 0;
+}
+
+.pv-title-bar:active {
+    cursor: grabbing;
+}
+
+.pv-title-buttons {
+    display: flex;
+    gap: 8px;
+    margin-right: 12px;
+}
+
+.pv-title-btn {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: filter 0.15s;
+}
+
+.pv-title-btn:hover {
+    filter: brightness(1.3);
+}
+
+.pv-title-btn.close { background: #ff5f56; }
+.pv-title-btn.minimize { background: #ffbd2e; }
+.pv-title-btn.maximize { background: #27c93f; }
+
+.pv-title-text {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 13px;
+    font-weight: 500;
+    text-align: center;
+    flex: 1;
+    margin-right: 88px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* === TOP TOOLBAR (reader controls) === */
+.pv-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    background: rgba(24, 24, 42, 0.9);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    flex-shrink: 0;
+    flex-wrap: wrap;
+}
+
+.pv-toolbar .pv-sep {
+    width: 1px;
+    height: 22px;
+    background: rgba(255, 255, 255, 0.12);
+    margin: 0 4px;
+}
+
+.pv-btn {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    min-width: 34px;
+    height: 26px;
+    padding: 0 8px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    transition: all 0.13s;
+    line-height: 1;
+}
+
+.pv-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.95);
+}
+
+.pv-btn:active {
+    background: rgba(51, 255, 51, 0.18);
+}
+
+.pv-btn:disabled {
+    opacity: 0.25;
+    cursor: default;
+    pointer-events: none;
+}
+
+.pv-btn.pv-active {
+    background: rgba(51, 255, 51, 0.18);
+    color: #33ff33;
+}
+
+.pv-toolbar .pv-zoom-indicator {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 12px;
+    font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+    min-width: 48px;
+    text-align: center;
+}
+
+.pv-page-nav {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 12.5px;
+    font-family: 'Cascadia Code', 'Consolas', monospace;
+}
+
+.pv-page-input {
+    width: 36px;
+    height: 24px;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 4px;
+    color: #fff;
+    text-align: center;
+    font-size: 12px;
+    font-family: inherit;
+    outline: none;
+}
+
+.pv-page-input:focus {
+    border-color: #33ff33;
+}
+
+.pv-page-total {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+/* === MAIN BODY (sidebar thumbnails + page canvas) === */
+.pv-body {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    min-height: 0;
+}
+
+/* Secondary toolbar (page labels / mode) optional row above body */
+/* === LEFT: PAGE THUMBNAILS SIDEBAR === */
+.pv-thumbs {
+    width: 150px;
+    min-width: 150px;
+    background: rgba(0, 0, 0, 0.22);
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
+    overflow-y: auto;
+    padding: 10px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.pv-thumb {
+    border: 2px solid rgba(255, 255, 255, 0.12);
+    border-radius: 6px;
+    background: #fff;
+    cursor: pointer;
+    overflow: hidden;
+    transition: border-color 0.13s, box-shadow 0.13s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px;
+    position: relative;
+}
+
+.pv-thumb:hover {
+    border-color: rgba(51, 255, 51, 0.6);
+}
+
+.pv-thumb.pv-thumb-active {
+    border-color: #33ff33;
+    box-shadow: 0 0 10px rgba(51, 255, 51, 0.35);
+}
+
+.pv-thumb canvas {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.pv-thumb .pv-thumb-num {
+    position: absolute;
+    bottom: 3px;
+    right: 5px;
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+    font-size: 9px;
+    padding: 1px 5px;
+    border-radius: 8px;
+    font-family: 'Cascadia Code','Consolas',monospace;
+    pointer-events: none;
+}
+
+/* === RIGHT: PAGE RENDERING AREA === */
+.pv-viewport {
+    flex: 1;
+    overflow: auto;
+    background: #1b1b22;
+    background-image:
+        radial-gradient(circle at 20% 20%, rgba(255,255,255,0.02) 0, transparent 40%),
+        radial-gradient(circle at 80% 80%, rgba(85, 85, 120, 0.05) 0, transparent 50%);
+    position: relative;
+}
+
+/* Continuous scroll wrap */
+.pv-pages-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 24px 60px;
+    min-height: 100%;
+}
+
+.pv-page-canvas {
+    background: #fff;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.55);
+    border-radius: 2px;
+    transition: width 0.15s ease;
+}
+
+.pv-loading, .pv-error {
+    padding: 60px 30px;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.pv-loading .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(255, 255, 255, 0.12);
+    border-top-color: #33ff33;
+    border-radius: 50%;
+    animation: pvSpin 0.8s linear infinite;
+}
+
+@keyframes pvSpin { to { transform: rotate(360deg); } }
+
+.pv-error .icon { font-size: 56px; }
+.pv-error .pv-detail { font-size: 12px; color: rgba(255,255,255,0.3); word-break: break-all; max-width: 420px; }
+
+/* === STATUS BAR === */
+.pv-statusbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 3px 12px;
+    background: rgba(0, 0, 0, 0.22);
+    border-top: 1px solid rgba(255, 255, 255, 0.04);
+    color: rgba(255, 255, 255, 0.35);
+    font-size: 11px;
+    flex-shrink: 0;
+    user-select: none;
+}
+
+/* === SCROLLBARS === */
+.pv-thumbs::-webkit-scrollbar,
+.pv-viewport::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.pv-thumbs::-webkit-scrollbar-track,
+.pv-viewport::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.pv-thumbs::-webkit-scrollbar-thumb,
+.pv-viewport::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 4px;
+}
+
+.pv-viewport::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.22); }
+
+/* === RESPONSIVE === */
+@media (max-width: 900px) {
+    .pdf-viewer {
+        width: calc(100% - 24px);
+        height: calc(100vh - 90px);
+        max-height: 640px;
+    }
+    .pv-title-text { width: auto; margin-right: 0; font-size: 12px; }
+    .pv-thumbs { width: 110px; min-width: 110px; }
+}
