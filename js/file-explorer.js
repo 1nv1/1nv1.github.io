@@ -16,7 +16,9 @@
     //  Mirrors the physical `documents/` folder at the project root.
     // ─────────────────────────────────────────────
     // The virtual `/documents` folder exposed by this explorer is built from
-    // this manifest, mapping each entry onto the real file documents/<name>.
+    // this manifest. Each entry is a RELATIVE PATH (e.g. 'lorem-ipsum.pdf' or
+    // 'math/complex_integration.pdf'); buildDocumentsChildren() below turns any
+    // subfolder segments into real directories, mirroring the physical tree.
     //
     // Declared BEFORE ROOT because the ROOT literal below builds /documents
     // synchronously from it when the object is created.
@@ -27,27 +29,65 @@
     //     node scripts/scan-documents.js
     //
     const DOCUMENTS_MANIFEST = [
-        { name: 'lorem-ipsum.pdf', size: 77123, modified: '2026-09-05 21:42' }
+        { name: 'lorem-ipsum.pdf', size: 77123, modified: '2026-09-05 21:42' },
+        { name: 'math/complex_integration.pdf', size: 289486, modified: '2026-09-06 20:54' }
     ];
 
-    // Build explorer nodes that point at the real files under documents/.
-    function buildDocumentsChildren() {
-        return DOCUMENTS_MANIFEST.map(function (item) {
-            const rawName = item.name || '';
-            const lower = rawName.toLowerCase();
-            let type = 'file';
-            if (/\.pdf$/i.test(rawName)) type = 'pdf';
-            else if (/\.(png|jpe?g|gif|svg|ico)$/.test(lower)) type = 'image';
-            else if (/\.md$/i.test(lower)) type = 'markdown';
+    // Decide a file's kind from its basename (a simple extension map).
+    function docTypeOf(name) {
+        const s = String(name || '');
+        const lower = s.toLowerCase();
+        if (/\.pdf$/i.test(s)) return 'pdf';
+        if (/\.(png|jpe?g|gif|svg|ico)$/.test(lower)) return 'image';
+        if (/\.md$/i.test(lower)) return 'markdown';
+        return 'file';
+    }
 
-            return {
-                name: rawName,
-                type: type,
-                realPath: 'documents/' + rawName,
+    // Build a NESTED tree of folder + file nodes that mirrors documents/.
+    // Each manifest entry carries a RELATIVE PATH in 'name' — it may include
+    // subfolders such as 'math/complex_integration.pdf' (or stay flat like
+    // 'lorem-ipsum.pdf'). Every path segment above the leaf becomes a real
+    // directory, so /documents and ~/Documents show the same folder layout
+    // as the physical documents/ tree.
+    function buildDocumentsChildren() {
+        var rootChildren = [];
+        // Map of a fully-qualified folder path (e.g. 'math' or 'math/calc') ->
+        // that folder's children[] array. Seeding '' -> rootChildren lets a flat
+        // entry and a nested one be handled uniformly (descend, then push).
+        var dirs = { '': rootChildren };
+
+        DOCUMENTS_MANIFEST.forEach(function (item) {
+            var parts = String(item.name || '').split('/').filter(Boolean);
+            if (parts.length === 0) return;
+
+            var baseName = parts[parts.length - 1];  // the file itself
+            var dirParts = parts.slice(0, parts.length - 1);
+            var parentList = rootChildren;           // starts at the /documents root
+            var running = '';
+
+            // Descend the folder chain, creating missing directories as needed
+            // so that two files sharing a folder reuse the very same dir node.
+            dirParts.forEach(function (seg) {
+                running = running ? running + '/' + seg : seg;
+                if (!dirs[running]) {
+                    var dirNode = { name: seg, type: 'dir', children: [] };
+                    parentList.push(dirNode);
+                    dirs[running] = dirNode.children;
+                }
+                parentList = dirs[running];
+            });
+
+            // Classify the leaf by its filename, then append it to its folder.
+            parentList.push({
+                name: baseName,
+                type: docTypeOf(baseName),
+                realPath: 'documents/' + parts.join('/'),
                 size: item.size || 0,
                 modified: item.modified || '—'
-            };
+            });
         });
+
+        return rootChildren;
     }
 
     const ROOT = {
